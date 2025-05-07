@@ -5,6 +5,9 @@
 #include <string>
 #include <iostream>
 #include <bits/random.h>
+#include <random>     // for mt19937, uniform_int_distribution
+#include <limits>     // for std::numeric_limits
+#include <cmath>      // for std::sqrt, std::log, std::exp
 
 #include "../Game.hpp"
 #include "../Roles/headers/Baron.hpp"
@@ -16,6 +19,59 @@
 
 
 using namespace std;
+
+// Pops up a window asking “Enter name for Player #X:”
+// Returns the string (empty if closed)
+std::string promptPlayerName(const sf::Font& font, int playerIndex) {
+    const sf::Vector2u size{400, 150};
+    sf::RenderWindow win({size.x, size.y}, "Enter Player Name", sf::Style::Close);
+    win.setFramerateLimit(30);
+
+    // Instruction text
+    sf::Text prompt("Enter name for Player " + std::to_string(playerIndex) + ":", font, 20);
+    prompt.setFillColor(sf::Color::White);
+    prompt.setPosition(10, 10);
+
+    // The editable text
+    std::string input;
+    sf::Text edit(input, font, 24);
+    edit.setFillColor(sf::Color::Yellow);
+    edit.setPosition(10, 50);
+
+    while (win.isOpen()) {
+        sf::Event e;
+        while (win.pollEvent(e)) {
+            if (e.type == sf::Event::Closed) {
+                win.close();
+                return "";  // cancelled
+            }
+            if (e.type == sf::Event::TextEntered) {
+                if (e.text.unicode == '\r' || e.text.unicode == '\n') {
+                    // Enter pressed
+                    win.close();
+                    return input;
+                }
+                else if (e.text.unicode == 8 && !input.empty()) {
+                    // Backspace
+                    input.pop_back();
+                }
+                else if (e.text.unicode >= 32 && e.text.unicode < 128) {
+                    // Visible ASCII
+                    input += static_cast<char>(e.text.unicode);
+                }
+                edit.setString(input);
+            }
+        }
+
+        win.clear(sf::Color(50,50,50));
+        win.draw(prompt);
+        win.draw(edit);
+        win.display();
+    }
+
+    return "";
+}
+
 
 void gameWindow(int playersCount, const sf::Font& font) {
     sf::RenderWindow wnd({1000, 800}, "Coup – Game", sf::Style::Close);
@@ -84,16 +140,7 @@ void gameWindow(int playersCount, const sf::Font& font) {
         dukeSprite.setPosition(spriteX, spriteY);
     }
 
-    // 3) Current player in bottom right
-    sf::Text currentPlayer("Player 1's turn", font, 20);
-    currentPlayer.setFillColor(sf::Color::White);
-    {
-        auto bounds = currentPlayer.getLocalBounds();
-        currentPlayer.setPosition(
-            wnd.getSize().x - bounds.width - 20 - bounds.left,
-            wnd.getSize().y - 40
-        );
-    }
+
 
     vector<Player*> players;
     players.reserve(playersCount);
@@ -104,41 +151,58 @@ void gameWindow(int playersCount, const sf::Font& font) {
 
     for(int i = 0; i < playersCount; i++)
     {
+        std::string name = promptPlayerName(font, i+1);
+        if (name.empty()) {
+            std::cerr << "Player naming cancelled!\n";
+            return;  // or handle cancellation
+        }
+
         int result = dice(mt);
         switch (result)
         {
             case 1:
             {
-                players.push_back(new Governor("name"));
+                players.push_back(new Governor(name));
                 break;
             }
             case 2:
             {
-                players.push_back(new Spy("name"));
+                players.push_back(new Spy(name));
                 break;
             }
             case 3:
             {
-                players.push_back(new Baron("name"));
+                players.push_back(new Baron(name));
                 break;
             }
             case 4:
             {
-                players.push_back(new General("name"));
+                players.push_back(new General(name));
                 break;
             }
             case 5:
             {
-                players.push_back(new Judge("name"));
+                players.push_back(new Judge(name));
             }
             case 6:
             {
-                players.push_back(new Merchant("name"));
+                players.push_back(new Merchant(name));
             }
         }
     }
 
     Game game = Game(players);
+
+    // 3) Current player in bottom right
+    sf::Text currentPlayer(game.getCurrentTurn().getName() + "'s Turn", font, 20);
+    currentPlayer.setFillColor(sf::Color::White);
+    {
+        auto bounds = currentPlayer.getLocalBounds();
+        currentPlayer.setPosition(
+            wnd.getSize().x - bounds.width - 20 - bounds.left,
+            wnd.getSize().y - 40
+        );
+    }
 
     // --- Main loop ---
     while (wnd.isOpen()) {

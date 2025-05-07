@@ -14,7 +14,7 @@ private:
 
 public:
     Game() : current_turn(nullptr), players(), game_winner(nullptr) {};
-    explicit Game(vector<Player*>& newPlayers) : current_turn(players.back()), players(newPlayers), game_winner(nullptr) {};
+    explicit Game(const vector<Player*>& newPlayers) : current_turn(newPlayers.back()), players(newPlayers), game_winner(nullptr) {};
     void turn() const;
     string winner() const;
     void startGame() const;
