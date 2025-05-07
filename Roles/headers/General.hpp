@@ -2,7 +2,7 @@
 #include "Player.hpp"
 
 
-class General : Player
+class General : public Player
 {
 
 };

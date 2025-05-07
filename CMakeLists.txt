@@ -31,6 +31,8 @@ set(SRC_FILES
         Roles/src/Baron.cpp
         Roles/src/Player.cpp
         GUI/main_window.cpp
+        GUI/game_window.cpp
+        GUI/game_window.hpp
 )
 
 # 5) Build the executable

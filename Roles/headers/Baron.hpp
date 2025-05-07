@@ -1,13 +1,13 @@
 #pragma once
 #include "Player.hpp"
 
-class Baron : Player
+class Baron : public Player
 {
 private:
     bool invested;
 
 public:
-    Baron(string name) : Player(name) {}
+    Baron(string name) : Player(name), invested(false) {}
 
     void invest() override;
     bool getInvested();
