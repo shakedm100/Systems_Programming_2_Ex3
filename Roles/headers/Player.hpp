@@ -12,9 +12,12 @@ protected:
     bool isSanctioned;
     bool isArrested;
     bool canArrest;
+    bool isAlive;
 
 public:
-    Player(const string& name) : name(name), isTurn(false), coins(0), isSanctioned(false), isArrested(false), canArrest(true) {};
+    explicit Player(const string& name) : name(name), isTurn(false), coins(0), isSanctioned(false), isArrested(false), canArrest(true), isAlive(true) {};
+
+    virtual ~Player() = default;
 
     void gather();
     virtual bool tax();
