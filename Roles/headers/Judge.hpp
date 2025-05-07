@@ -3,6 +3,7 @@
 
 class Judge : public Player
 {
+public:
     explicit Judge(const string& name) : Player(name) {};
 
 };
