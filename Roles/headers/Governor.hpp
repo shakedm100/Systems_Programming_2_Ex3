@@ -5,7 +5,7 @@ class Governor : public Player
 {
 
     public:
-    Governor(string name) : Player(name) {}
+    explicit Governor(const string& name) : Player(name) {}
 
     bool tax() override;
     void abortTax(Player &role) override;

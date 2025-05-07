@@ -7,7 +7,7 @@ private:
     bool invested;
 
 public:
-    Baron(string name) : Player(name), invested(false) {}
+    explicit Baron(const string& name) : Player(name), invested(false) {}
 
     void invest() override;
     bool getInvested();
