@@ -6,9 +6,6 @@
 #include <iostream>
 #include <bits/random.h>
 #include <random>     // for mt19937, uniform_int_distribution
-#include <limits>     // for std::numeric_limits
-#include <cmath>      // for std::sqrt, std::log, std::exp
-
 #include "../Game.hpp"
 #include "../Roles/headers/Baron.hpp"
 #include "../Roles/headers/General.hpp"
@@ -72,6 +69,61 @@ std::string promptPlayerName(const sf::Font& font, int playerIndex) {
     return "";
 }
 
+Game createGame(const int playersCount, const sf::Font& font)
+{
+    vector<Player*> players;
+    players.reserve(playersCount);
+
+    std::random_device rd;
+    std::mt19937 mt(rd());
+    std::uniform_int_distribution<int> dice(1,6);
+
+    for(int i = 0; i < playersCount; i++)
+    {
+        std::string name = promptPlayerName(font, i+1);
+        if (name.empty())
+        {
+            throw std::invalid_argument("Player naming cancelled!\n");
+        }
+
+        int result = dice(mt);
+        switch (result)
+        {
+            case 1:
+            {
+                players.push_back(new Governor(name));
+                break;
+            }
+            case 2:
+            {
+                players.push_back(new Spy(name));
+                break;
+            }
+            case 3:
+            {
+                players.push_back(new Baron(name));
+                break;
+            }
+            case 4:
+            {
+                players.push_back(new General(name));
+                break;
+            }
+            case 5:
+            {
+                players.push_back(new Judge(name));
+                break;
+            }
+            case 6:
+            {
+                players.push_back(new Merchant(name));
+                break;
+            }
+        }
+    }
+
+    return Game(players);
+}
 
 void gameWindow(int playersCount, const sf::Font& font) {
     sf::RenderWindow wnd({1000, 800}, "Coup – Game", sf::Style::Close);
@@ -85,6 +137,9 @@ void gameWindow(int playersCount, const sf::Font& font) {
     };
     std::vector<sf::RectangleShape> btns;
     std::vector<sf::Text>   btnLabels;
+    std::vector<Player*> otherPlayers;
+    bool goNextTurn = true;
+
     const float btnW = 140, btnH = 50, btnY = 20, spacing = 20;
     float x = spacing;
 
@@ -108,7 +163,7 @@ void gameWindow(int playersCount, const sf::Font& font) {
     }
 
     // 2) Current card in bottom middle
-    sf::Text currentCard("Your Card: Duke", font, 24);
+    sf::Text currentCard("Your Card: ", font, 24);
     currentCard.setFillColor(sf::Color::White);
     {
         auto bounds = currentCard.getLocalBounds();
@@ -140,61 +195,17 @@ void gameWindow(int playersCount, const sf::Font& font) {
         dukeSprite.setPosition(spriteX, spriteY);
     }
 
+    bool choosingTarget = false;
+    enum TargetAction { None, Arrest, Sanction, Coup } targetAction = None;
 
+    Game game = createGame(playersCount, font);
 
-    vector<Player*> players;
-    players.reserve(playersCount);
-
-    std::random_device rd;
-    std::mt19937 mt(rd());
-    std::uniform_int_distribution<int> dice(1,6);
-
-    for(int i = 0; i < playersCount; i++)
-    {
-        std::string name = promptPlayerName(font, i+1);
-        if (name.empty()) {
-            std::cerr << "Player naming cancelled!\n";
-            return;  // or handle cancellation
-        }
-
-        int result = dice(mt);
-        switch (result)
-        {
-            case 1:
-            {
-                players.push_back(new Governor(name));
-                break;
-            }
-            case 2:
-            {
-                players.push_back(new Spy(name));
-                break;
-            }
-            case 3:
-            {
-                players.push_back(new Baron(name));
-                break;
-            }
-            case 4:
-            {
-                players.push_back(new General(name));
-                break;
-            }
-            case 5:
-            {
-                players.push_back(new Judge(name));
-            }
-            case 6:
-            {
-                players.push_back(new Merchant(name));
-            }
-        }
-    }
-
-    Game game = Game(players);
+    std::vector<sf::RectangleShape> targetBtns;
+    std::vector<sf::Text>          targetLbls;
+    const float targetBtnW = 120, targetBtnH = 40;
 
     // 3) Current player in bottom right
-    sf::Text currentPlayer(game.getCurrentTurn().getName() + "'s Turn", font, 20);
+    sf::Text currentPlayer(game.getCurrentTurn()->getName() + "'s Turn", font, 20);
     currentPlayer.setFillColor(sf::Color::White);
     {
         auto bounds = currentPlayer.getLocalBounds();
@@ -207,6 +218,12 @@ void gameWindow(int playersCount, const sf::Font& font) {
     // --- Main loop ---
     while (wnd.isOpen()) {
         sf::Event evt;
+        if(goNextTurn)
+            game.nextTurn();
+        else
+            goNextTurn = true;
+        currentCard.setString("Your Card: " + game.getCurrentTurn()->getClassName());
+
         while (wnd.pollEvent(evt)) {
             if (evt.type == sf::Event::Closed) {
                 wnd.close();
@@ -215,10 +232,73 @@ void gameWindow(int playersCount, const sf::Font& font) {
                      evt.mouseButton.button == sf::Mouse::Left)
             {
                 sf::Vector2f m(evt.mouseButton.x, evt.mouseButton.y);
-                for (size_t i = 0; i < btns.size(); ++i) {
-                    if (btns[i].getGlobalBounds().contains(m)) {
+                for (size_t i = 0; i < btns.size(); ++i)
+                {
+                    if (btns[i].getGlobalBounds().contains(m))
+                    {
                         // Handle action i
                         std::cout << "Action: " << actions[i] << "\n";
+                        if(actions[i] == "Gather")
+                        {
+                            game.getCurrentTurn()->gather();
+                        }
+                        else if(actions[i] == "Tax")
+                        {
+                            game.getCurrentTurn()->tax();
+                        }
+                        else if(actions[i] == "Bribe")
+                        {
+                            bool success = game.getCurrentTurn()->bribe();
+                            if(success)
+                            {
+                                goNextTurn = false;
+                            }
+                            else
+                            {
+                                //TODO: Show failed
+                            }
+                        }
+                        else if (actions[i] == "Arrest" || actions[i] == "Sanction" || actions[i] == "Coup")
+                        {
+                            // 1) enter target-selection mode
+                            choosingTarget = true;
+                            targetBtns.clear();
+                            targetLbls.clear();
+                            otherPlayers.clear();
+
+                            // set which action
+                            if (actions[i] == "Arrest")    targetAction = Arrest;
+                            if (actions[i] == "Sanction")  targetAction = Sanction;
+                            if (actions[i] == "Coup")      targetAction = Coup;
+
+                            // 2) create a button for each other player
+                            float tx = spacing;
+                            float ty = btnY + btnH + spacing;
+                            std::vector<Player*> playersTemp = game.getPlayers();
+                            for (auto& pPtr : game.getPlayers())
+                            {
+                                if (pPtr->getName() == game.getCurrentTurn()->getName()) continue;  // skip self
+                                otherPlayers.push_back(pPtr);
+
+                                sf::RectangleShape b({targetBtnW, targetBtnH});
+                                b.setFillColor({200, 80, 80}); // e.g. red tint
+                                b.setPosition(tx, ty);
+                                targetBtns.push_back(b);
+
+                                sf::Text lbl(pPtr->getName(), font, 18);
+                                lbl.setFillColor(sf::Color::White);
+                                auto bb = b.getGlobalBounds();
+                                auto tb = lbl.getLocalBounds();
+                                lbl.setPosition(
+                                        bb.left + (bb.width  - tb.width )/2 - tb.left,
+                                        bb.top  + (bb.height - tb.height)/2 - tb.top
+                                );
+                                targetLbls.push_back(lbl);
+
+                                tx += targetBtnW + spacing;
+                            }
+                        }
+
                     }
                 }
             }
@@ -226,11 +306,42 @@ void gameWindow(int playersCount, const sf::Font& font) {
 
         // Draw
         wnd.clear({30, 30, 30});
-        for (auto& btn : btns)        wnd.draw(btn);
+        for (auto& btn: btns)        wnd.draw(btn);
+
+        if (choosingTarget)
+        {
+            for (size_t t = 0; t < targetBtns.size(); ++t)
+            {
+                sf::Vector2f m(evt.mouseButton.x, evt.mouseButton.y);
+                if (targetBtns[t].getGlobalBounds().contains(m))
+                {
+                    // call the appropriate game method on the victim
+                    Player* victim = otherPlayers[t];
+
+                    switch (targetAction) {
+                        case Arrest:   game.getCurrentTurn()->arrest(*victim); break;
+                        case Sanction: game.getCurrentTurn()->sanction(*victim); break;
+                        case Coup:     game.getCurrentTurn()->coup(*victim); break;
+                        default: break;
+                    }
+                    // exit target mode
+                    choosingTarget = false;
+                    targetAction = None;
+                    targetBtns.clear();
+                    targetLbls.clear();
+                    break;
+                }
+            }
+        }
+
         for (auto& lbl : btnLabels)   wnd.draw(lbl);
         wnd.draw(currentCard);
         wnd.draw(dukeSprite);
         wnd.draw(currentPlayer);
+        if (choosingTarget) {
+            for (auto& b : targetBtns)   wnd.draw(b);
+            for (auto& l : targetLbls)   wnd.draw(l);
+        }
         wnd.display();
     }
 }
