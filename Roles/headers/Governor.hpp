@@ -9,4 +9,5 @@ class Governor : public Player
 
     bool tax() override;
     void abortTax(Player &role) override;
+    string getClassName() override;
 };

@@ -20,3 +20,8 @@ void Governor::abortTax(Player &role)
 {
     Player::abortTax(role);
 }
+
+string Governor::getClassName()
+{
+    return "Governor";
+}

@@ -42,7 +42,7 @@ bool Player::arrest(Player& Player)
     return false;
 }
 
-bool Player::sanctions(Player& Player)
+bool Player::sanction(Player& Player)
 {
     if(this->coins >= 3)
     {
@@ -54,10 +54,13 @@ bool Player::sanctions(Player& Player)
     return false;
 }
 
-bool Player::coup()
+bool Player::coup(Player& player) const
 {
     if(this->coins >= 7)
+    {
+        player.isAlive = false;
         return true;
+    }
     return false;
 }
 

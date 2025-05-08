@@ -9,3 +9,8 @@ bool Baron::getInvested()
 {
     return invested;
 }
+
+string Baron::getClassName()
+{
+    return "Baron";
+}

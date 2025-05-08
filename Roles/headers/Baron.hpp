@@ -11,4 +11,5 @@ public:
 
     void invest() override;
     bool getInvested();
+    string getClassName() override;
 };

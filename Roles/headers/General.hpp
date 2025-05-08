@@ -6,7 +6,7 @@ class General : public Player
 {
 public:
     explicit General(const string& name) : Player(name) {};
-
+    string getClassName() override;
 };
 
 

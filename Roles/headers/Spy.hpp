@@ -7,4 +7,5 @@ class Spy : public Player
     explicit Spy(const string& name) : Player(name) {};
     int peek(Player& role) override;
     void blockArrest(Player& role) override;
+    string getClassName() override;
 };

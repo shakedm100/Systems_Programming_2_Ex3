@@ -23,8 +23,8 @@ public:
     virtual bool tax();
     bool bribe();
     bool arrest(Player& role);
-    bool sanctions(Player& role);
-    bool coup();
+    bool sanction(Player& role);
+    bool coup(Player& player) const;
     int getCoins() const;
     bool getCanArrest() const;
     bool& setCanArrest();
@@ -36,4 +36,5 @@ public:
     virtual void preventCoup(); //General only action
     virtual void preventBribe(); //Judge only action
     friend ostream& operator<<(ostream& os, const Player& player);
+    virtual std::string getClassName() = 0;
 };
