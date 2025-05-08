@@ -20,22 +20,21 @@ void Game::startGame() const
     *current_turn = *players.front();
 }
 
-Player Game::getCurrentTurn() const
-{
-    return *current_turn;
+Player* Game::getCurrentTurn() const {
+    return current_turn;
 }
 
-void Game::nextTurn() const
+void Game::nextTurn()
 {
     for(int i = 0; i < players.size(); i++)
     {
         if(current_turn == players[i] && i != players.size() - 1)
         {
-            *current_turn = *players[i+1];
+            current_turn = players[i+1];
         }
         else if(current_turn == players[i] && i == players.size() - 1)
         {
-            *current_turn = *players[0];
+            current_turn = players[0];
         }
     }
 }
@@ -43,6 +42,11 @@ void Game::nextTurn() const
 void Game::endGame() const
 {
     *game_winner = *current_turn;
+}
+
+std::vector<Player*> Game::getPlayers()
+{
+    return players;
 }
 
 

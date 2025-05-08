@@ -3,22 +3,21 @@
 #include <vector>
 #include <string>
 
-using namespace std;
-
 class Game
 {
 private:
     Player* current_turn;
-    vector<Player*> players;
+    std::vector<Player*> players;
     Player* game_winner;
 
 public:
     Game() : current_turn(nullptr), players(), game_winner(nullptr) {};
-    explicit Game(const vector<Player*>& newPlayers) : current_turn(newPlayers.back()), players(newPlayers), game_winner(nullptr) {};
+    explicit Game(const std::vector<Player*>& newPlayers) : current_turn(newPlayers.back()), players(newPlayers), game_winner(nullptr) {};
     void turn() const;
     string winner() const;
     void startGame() const;
-    Player getCurrentTurn() const;
-    void nextTurn() const;
+    Player * getCurrentTurn() const;
+    void nextTurn();
     void endGame() const;
+    std::vector<Player*> getPlayers();
 };
