@@ -139,7 +139,7 @@ int main()
                     int n = promptPlayerCount(font);
                     if (n > 0) {
                         window.close();
-                        gameWindow(n, font);      // <-- calls into game_window.cpp
+                        gameWindow(n);      // <-- calls into game_window.cpp
                     }
                 }
                 if (btnExit.getGlobalBounds().contains(m)) {
