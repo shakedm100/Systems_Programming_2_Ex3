@@ -3,19 +3,26 @@
 
 using namespace std;
 
+struct Status
+{
+    bool isSanctioned;
+    bool isArrested;
+    bool canArrest;
+    bool isAlive;
+
+    Status() : isSanctioned(false), isArrested(false), canArrest(false), isAlive(false) {};
+};
+
 class Player
 {
 protected:
     string name;
     bool isTurn;
     int coins;
-    bool isSanctioned;
-    bool isArrested;
-    bool canArrest;
-    bool isAlive;
+    Status status;
 
 public:
-    explicit Player(const string& name) : name(name), isTurn(false), coins(0), isSanctioned(false), isArrested(false), canArrest(true), isAlive(true) {};
+    explicit Player(const string& name) : name(name), isTurn(false), coins(0), status() {};
 
     virtual ~Player() = default;
 

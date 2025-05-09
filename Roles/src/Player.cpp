@@ -4,13 +4,13 @@
 
 void Player::gather()
 {
-    if(!isSanctioned)
+    if(!status.isSanctioned)
         coins++;
 }
 
 bool Player::tax()
 {
-    if(!isSanctioned)
+    if(!status.isSanctioned)
     {
         coins+=2;
         return true;
@@ -32,7 +32,7 @@ bool Player::bribe()
 
 bool Player::arrest(Player& Player)
 {
-    if(Player.coins > 0 && !Player.isArrested)
+    if(Player.coins > 0 && !Player.status.isArrested)
     {
         Player.coins--;
         this->coins++;
@@ -46,7 +46,7 @@ bool Player::sanction(Player& Player)
 {
     if(this->coins >= 3)
     {
-        Player.isSanctioned = true;
+        Player.status.isSanctioned = true;
         this->coins -= 3;
         return true;
     }
@@ -58,7 +58,7 @@ bool Player::coup(Player& player) const
 {
     if(this->coins >= 7)
     {
-        player.isAlive = false;
+        player.status.isAlive = false;
         return true;
     }
     return false;
@@ -71,12 +71,12 @@ int Player::getCoins() const
 
 bool Player::getCanArrest() const
 {
-    return canArrest;
+    return status.canArrest;
 }
 
 bool &Player::setCanArrest()
 {
-    return canArrest;
+    return status.canArrest;
 }
 
 string Player::getName() const
