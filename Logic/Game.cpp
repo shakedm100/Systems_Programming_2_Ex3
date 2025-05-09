@@ -15,12 +15,43 @@ string Game::winner() const
     throw NoWinnerException("No winner yet in this game");
 }
 
+bool Game::checkWinner()
+{
+    if(alivePlayers() == 1)
+    {
+        game_winner = current_turn;
+        return true;
+    }
+
+    return false;
+}
+
+Player * Game::getWinner() const
+{
+    return game_winner;
+}
+
+
+int Game::alivePlayers() const
+{
+    int count = 0;
+
+    for(int i = 0; i < players.size(); i++)
+    {
+        if(players[i]->getStatus().isAlive)
+            count++;
+    }
+
+    return count;
+}
+
 void Game::startGame() const
 {
     *current_turn = *players.front();
 }
 
-Player* Game::getCurrentTurn() const {
+Player* Game::getCurrentTurn() const
+{
     return current_turn;
 }
 

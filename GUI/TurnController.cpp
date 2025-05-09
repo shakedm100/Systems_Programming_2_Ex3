@@ -41,6 +41,7 @@ TurnController::TurnController(Game& game, sf::Font& font, sf::RenderWindow& wnd
     errorLabel.setPosition(wnd.getSize().x/2.f, wnd.getSize().y/2.f);
 
     phase = Phase::StartTurn;
+    gameFinished = false;
 }
 
 void TurnController::handleClick(const sf::Event& evt) {
@@ -102,7 +103,14 @@ void TurnController::update() {
             game.getCurrentTurn()->clearStatusEffects();
             game.nextTurn();
             pendingTarget = nullptr;
-            phase = Phase::StartTurn;
+            if(game.checkWinner())
+                Phase::GameOver;
+            else
+                phase = Phase::StartTurn;
+            break;
+
+        case Phase::GameOver:
+            finishGame();
             break;
 
         default:
@@ -111,22 +119,25 @@ void TurnController::update() {
 }
 
 void TurnController::render() {
-    // action row
-    for (auto& b : btns)
-        wnd.draw(b);
-    for (auto& l : btnLabels)
-        wnd.draw(l);
-    // target row if needed
-    if (phase == Phase::ChooseTarget) {
-        for (auto& b : targetBtns) wnd.draw(b);
-        for (auto& l : targetLbls) wnd.draw(l);
+    wnd.clear({30,30,30});
+    if (gameFinished) {
+        wnd.draw(gameOverLabel);
+    } else {
+        // draw action row
+        for (auto& b : btns) wnd.draw(b);
+        for (auto& l : btnLabels) wnd.draw(l);
+        // draw target row
+        if (phase == Phase::ChooseTarget) {
+            for (auto& b : targetBtns) wnd.draw(b);
+            for (auto& l : targetLbls) wnd.draw(l);
+        }
+        // draw labels
+        wnd.draw(currentPlayer);
+        wnd.draw(roleLabel);
+        wnd.draw(coinLabel);
+        if (!errorLabel.getString().isEmpty()) wnd.draw(errorLabel);
     }
-    // status texts
-    wnd.draw(currentPlayer);
-    wnd.draw(coinLabel);
-    wnd.draw(roleLabel);
-    if (!errorLabel.getString().isEmpty())
-        wnd.draw(errorLabel);
+    wnd.display();
 }
 
 // helpers
@@ -202,4 +213,22 @@ void TurnController::centerTextIn(const sf::RectangleShape& b, sf::Text& t)
             bb.left + (bb.width - tb.width)/2 - tb.left,
             bb.top  + (bb.height - tb.height)/2 - tb.top
     );
+}
+
+void TurnController::finishGame() {
+    // clear all UI elements
+    btns.clear(); btnLabels.clear();
+    targetBtns.clear(); targetLbls.clear(); otherPlayers.clear();
+    // prepare game-over label
+    std::string winner = game.getWinner()->getName();
+    gameOverLabel.setString("Game Over!\nWinner: " + winner);
+    // center origin of multi-line text
+    auto bounds = gameOverLabel.getLocalBounds();
+    gameOverLabel.setOrigin(
+        bounds.left + bounds.width/2.f,
+        bounds.top  + bounds.height/2.f
+    );
+    // position at window center
+    gameOverLabel.setPosition(wnd.getSize().x/2.f, wnd.getSize().y/2.f);
+    gameFinished = true;
 }

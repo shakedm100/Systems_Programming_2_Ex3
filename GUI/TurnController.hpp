@@ -11,7 +11,8 @@ enum class Phase
     ChooseAction, // pick an action button
     ChooseTarget, // pick a target for actions that require one
     ResolveAction,// apply the chosen action
-    EndTurn       // advance to next player
+    EndTurn,       // advance to next player
+    GameOver        // Finish the game
 };
 
 class TurnController
@@ -21,6 +22,7 @@ private:
     sf::Font& font;
     sf::RenderWindow& wnd;
     Phase phase;
+    bool gameFinished;
 
     // main action buttons
     std::vector<std::string> actions;
@@ -41,6 +43,7 @@ private:
     sf::Text coinLabel;
     sf::Text errorLabel;
     sf::Text roleLabel;
+    sf::Text gameOverLabel;
 
 public:
 
@@ -56,6 +59,7 @@ private:
     void clearUI();
     void centerOrigin(sf::Text& t);
     void centerTextIn(const sf::RectangleShape& b, sf::Text& t);
+    void finishGame();
 
 };
 
