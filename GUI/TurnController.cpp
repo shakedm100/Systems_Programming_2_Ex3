@@ -121,6 +121,9 @@ void TurnController::update()
 
 void TurnController::render()
 {
+    if (errorActive && errorClock.getElapsedTime().asSeconds() > 1.f)
+        errorActive = false;
+
     // draw only; clearing&display done in main
     if (phase==Phase::GameOver)
         wnd.draw(gameOverLabel);
@@ -141,8 +144,9 @@ void TurnController::render()
         wnd.draw(currentPlayer);
         wnd.draw(roleLabel);
         wnd.draw(coinLabel);
-        if (!errorLabel.getString().isEmpty())
+        if (errorActive) {
             wnd.draw(errorLabel);
+        }
         for (int i = 0; i < MAX_PLAYERS; ++i)
             wnd.draw(playerStatusLabels[i]);
     }
@@ -157,7 +161,6 @@ void TurnController::setupForCurrentPlayer()
     currentPlayer.setString(p->getName() + "'s Turn");
     roleLabel.setString("Role: " + game.getCurrentTurn()->getClassName());
     coinLabel.setString("Coins: " + std::to_string(p->getCoins()));
-    errorLabel.setString("");
 
     auto tb = currentPlayer.getLocalBounds();
     currentPlayer.setOrigin(tb.left + tb.width, tb.top + tb.height);
@@ -217,13 +220,21 @@ void TurnController::applyPending() {
     }
     else
     {
-        errorLabel.setString("Illegal move!");
+        showError("Illegal move!");
         pendingTarget = nullptr;
         centerOrigin(errorLabel);
         game.getCurrentTurn()->increaseExtraTurns();
         phase = Phase::ChooseAction;
         return;
     }
+}
+
+void TurnController::showError(const std::string& msg)
+{
+    errorLabel.setString(msg);
+    centerOrigin(errorLabel);    // re-center since string changed
+    errorClock.restart();        // start timing now
+    errorActive = true;          // turn it on
 }
 
 void TurnController::enterTargetMode()

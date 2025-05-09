@@ -45,6 +45,11 @@ private:
     sf::Text roleLabel;
     sf::Text gameOverLabel;
     std::vector<sf::Text> playerStatusLabels;
+
+    // error handling
+    sf::Clock   errorClock;
+    bool        errorActive = false;
+
 public:
 
     TurnController(Game& game, sf::Font& font, sf::RenderWindow& wnd);
@@ -61,5 +66,7 @@ private:
     void centerTextIn(const sf::RectangleShape& b, sf::Text& t);
     void finishGame();
     void updateStatusLabels();
+    void showError(const std::string& msg);
+
 };
 
