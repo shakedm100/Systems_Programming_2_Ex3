@@ -17,7 +17,7 @@ string Game::winner() const
 
 bool Game::checkWinner()
 {
-    if(alivePlayers() == 1)
+    if(alivePlayers.size() == 1)
     {
         game_winner = current_turn;
         return true;
@@ -29,20 +29,6 @@ bool Game::checkWinner()
 Player * Game::getWinner() const
 {
     return game_winner;
-}
-
-
-int Game::alivePlayers() const
-{
-    int count = 0;
-
-    for(int i = 0; i < players.size(); i++)
-    {
-        if(players[i]->getStatus().isAlive)
-            count++;
-    }
-
-    return count;
 }
 
 void Game::startGame() const
@@ -57,16 +43,16 @@ Player* Game::getCurrentTurn() const
 
 void Game::nextTurn()
 {
-    for(int i = 0; i < players.size(); i++)
+    for(int i = 0; i < alivePlayers.size(); i++)
     {
-        if(current_turn == players[i] && i != players.size() - 1)
+        if(current_turn == alivePlayers[i] && i != alivePlayers.size() - 1)
         {
-            current_turn = players[i+1];
+            current_turn = alivePlayers[i+1];
             return;
         }
-        else if(current_turn == players[i] && i == players.size() - 1)
+        else if(current_turn == alivePlayers[i] && i == alivePlayers.size() - 1)
         {
-            current_turn = players[0];
+            current_turn = alivePlayers[0];
             return;
         }
     }
@@ -141,6 +127,21 @@ void Game::perform(Player *actor, string action, Player *pendingTarget)
         else if(action == "Sanction")
             actor->sanction(*pendingTarget);
         else if(action == "Coup")
+        {
             actor->coup(*pendingTarget);
+            for(int i = 0; i < alivePlayers.size(); i++)
+            {
+                if(alivePlayers[i] == pendingTarget)
+                {
+                    alivePlayers.erase(alivePlayers.begin() + i);
+                    return;
+                }
+            }
+        }
     }
+}
+
+std::vector<Player*> Game::getAlivePlayers()
+{
+    return alivePlayers;
 }

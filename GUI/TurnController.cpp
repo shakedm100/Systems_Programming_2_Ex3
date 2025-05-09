@@ -1,5 +1,4 @@
 #include "TurnController.hpp"
-
 #include <sstream>
 
 TurnController::TurnController(Game& game, sf::Font& font, sf::RenderWindow& wnd)
@@ -29,6 +28,7 @@ TurnController::TurnController(Game& game, sf::Font& font, sf::RenderWindow& wnd
     coinLabel.setCharacterSize(18);
     coinLabel.setFillColor(sf::Color::Yellow);
     coinLabel.setPosition(20.f, wnd.getSize().y - 40.f);
+
     // Role label
     roleLabel.setFont(font);
     roleLabel.setCharacterSize(32);
@@ -230,7 +230,7 @@ void TurnController::enterTargetMode()
 {
     targetBtns.clear(); targetLbls.clear(); otherPlayers.clear();
     float x = 20.f, y = 80.f + 60.f;
-    for (auto* p : game.getPlayers()) {
+    for (auto* p : game.getAlivePlayers()) {
         if (p == game.getCurrentTurn()) continue;
         otherPlayers.push_back(p);
         sf::RectangleShape b({120.f,40.f}); b.setPosition(x,y); b.setFillColor({200,80,80});
