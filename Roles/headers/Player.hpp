@@ -10,6 +10,7 @@ struct Status
     bool canArrest;
     bool isAlive;
     bool canTax;
+    bool canRevert; // Name is not intuitive.
 
     Status() : isSanctioned(false), isArrested(false), canArrest(true), isAlive(true),
     canTax(true) {};
