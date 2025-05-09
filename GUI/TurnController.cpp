@@ -213,14 +213,17 @@ void TurnController::updateStatusLabels()
 
 void TurnController::applyPending() {
     auto* actor = game.getCurrentTurn();
-    if (game.canPerform(actor, pendingAction, pendingTarget))
+    try
     {
-        game.perform(actor, pendingAction, pendingTarget);
-        pendingTarget = nullptr;
+        if (game.canPerform(actor, pendingAction, pendingTarget))
+        {
+            game.perform(actor, pendingAction, pendingTarget);
+            pendingTarget = nullptr;
+        }
     }
-    else
+    catch (const std::exception& e)
     {
-        showError("Illegal move!");
+        showError(e.what());
         pendingTarget = nullptr;
         centerOrigin(errorLabel);
         game.getCurrentTurn()->increaseExtraTurns();

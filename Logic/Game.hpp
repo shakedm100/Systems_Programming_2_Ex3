@@ -25,8 +25,11 @@ public:
     std::vector<Player*> getPlayers();
     std::vector<string> getActionNames();
     bool actionNeedsTarget(string basicString);
-    bool canPerform(Player *actor, string basicString, Player *pendingTarget);
-    void perform(Player *pPlayer, string basicString, Player *pPlayer1);
+    bool canPerform(Player *actor, const std::string& action, Player *pendingTarget);
+    void perform(Player *pPlayer, string action, Player *pPlayer1);
     std::vector<Player*> getAlivePlayers();
+
+private:
+    std::string whyCannotPerform(Player* actor, const std::string& action, Player* pendingTarget);
 
 };
