@@ -72,13 +72,13 @@ std::vector<Player*> Game::getPlayers()
 
 std::vector<string> Game::getActionNames()
 {
-    std::vector<string> actions = {"Gather", "Tax", "Bribe", "Arrest", "Sanction", "Coup"};
+    std::vector<string> actions = {"Gather", "Tax", "Bribe", "Arrest", "Sanction", "Coup", "Skip"};
     return actions;
 }
 
 bool Game::actionNeedsTarget(string action)
 {
-    if(action == "Gather" || action == "Tax" || action == "Bribe")
+    if(action == "Gather" || action == "Tax" || action == "Bribe" || action == "Skip")
         return false;
     if (action == "Arrest"   || action == "Sanction" || action == "Coup")
         return true;
@@ -88,6 +88,8 @@ bool Game::actionNeedsTarget(string action)
 
 std::string Game::whyCannotPerform(Player* actor, const std::string& action, Player* pendingTarget)
 {
+    if(action == "Skip")
+        return "";
     if (pendingTarget == nullptr) {
         if (action == "Gather") {
             if (actor->getStatus().isSanctioned)

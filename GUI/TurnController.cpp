@@ -6,13 +6,14 @@ TurnController::TurnController(Game& game, sf::Font& font, sf::RenderWindow& wnd
 {
     // prepare action buttons
     float x = 20.f, y = 20.f;
-    for (const auto& name : game.getActionNames()) {
+    for (const auto& name : game.getActionNames())
+    {
         sf::RectangleShape b({120.f, 40.f});
         b.setPosition(x, y);
         b.setFillColor({100,100,200});
         actions.push_back(name);
         btns.push_back(b);
-        sf::Text t(name, font, 18);
+        sf::Text t(name, font, 25);
         t.setFillColor(sf::Color::White);
         centerTextIn(b, t);
         btnLabels.push_back(t);
@@ -20,23 +21,23 @@ TurnController::TurnController(Game& game, sf::Font& font, sf::RenderWindow& wnd
     }
     // current-player label
     currentPlayer.setFont(font);
-    currentPlayer.setCharacterSize(20);
+    currentPlayer.setCharacterSize(28);
     currentPlayer.setFillColor(sf::Color::White);
 
     // coin label
     coinLabel.setFont(font);
-    coinLabel.setCharacterSize(18);
+    coinLabel.setCharacterSize(28);
     coinLabel.setFillColor(sf::Color::Yellow);
     coinLabel.setPosition(20.f, wnd.getSize().y - 40.f);
 
     // Role label
     roleLabel.setFont(font);
-    roleLabel.setCharacterSize(32);
+    roleLabel.setCharacterSize(40);
     roleLabel.setFillColor(sf::Color::White);
 
     // error label
     errorLabel.setFont(font);
-    errorLabel.setCharacterSize(24);
+    errorLabel.setCharacterSize(40);
     errorLabel.setFillColor(sf::Color::Red);
     errorLabel.setString("");
     centerOrigin(errorLabel);
@@ -59,17 +60,22 @@ void TurnController::handleClick(const sf::Event& evt)
     if (evt.type != sf::Event::MouseButtonPressed || evt.mouseButton.button != sf::Mouse::Left)
         return;
     sf::Vector2f m(evt.mouseButton.x, evt.mouseButton.y);
-    switch (phase) {
+    switch (phase)
+    {
         case Phase::ChooseAction:
-            for (size_t i=0; i<btns.size(); ++i) {
-                if (btns[i].getGlobalBounds().contains(m)) {
+            for (size_t i=0; i<btns.size(); ++i)
+            {
+                if (btns[i].getGlobalBounds().contains(m))
+                {
                     pendingAction = actions[i];
-                    if (game.actionNeedsTarget(pendingAction)) {
+                    if (game.actionNeedsTarget(pendingAction))
+                    {
                         enterTargetMode();
                         phase = Phase::ChooseTarget;
-                    } else {
-                        phase = Phase::ResolveAction;
                     }
+                    else
+                        phase = Phase::ResolveAction;
+
                     return;
                 }
             }
