@@ -135,6 +135,19 @@ void Player::decreaseExtraTurns()
     extraTurns--;
 }
 
+void Player::increaseExtraTurns()
+{
+    extraTurns++;
+}
+
+void Player::clearStatusEffects()
+{
+    status.canArrest = true;
+    status.canTax = true;
+    status.isArrested = false;
+    status.isSanctioned = false;
+}
+
 std::ostream& operator<<(std::ostream& os, const Player& player) {
     os << player.name << "\n";
     return os;

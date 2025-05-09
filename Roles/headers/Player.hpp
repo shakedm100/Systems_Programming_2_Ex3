@@ -11,7 +11,7 @@ struct Status
     bool isAlive;
     bool canTax;
 
-    Status() : isSanctioned(false), isArrested(false), canArrest(false), isAlive(false),
+    Status() : isSanctioned(false), isArrested(false), canArrest(true), isAlive(true),
     canTax(true) {};
 };
 
@@ -19,13 +19,12 @@ class Player
 {
 protected:
     string name;
-    bool isTurn;
     int coins;
     Status status;
     int extraTurns;
 
 public:
-    explicit Player(const string& name) : name(name), isTurn(false), coins(0), status(), extraTurns(0) {};
+    explicit Player(const string& name) : name(name), coins(0), status(), extraTurns(0) {};
 
     virtual ~Player() = default;
 
@@ -51,4 +50,6 @@ public:
     Status& setStatus();
     int getExtraTurns() const;
     void decreaseExtraTurns();
+    void increaseExtraTurns();
+    void clearStatusEffects();
 };
