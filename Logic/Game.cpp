@@ -67,12 +67,49 @@ bool Game::actionNeedsTarget(string action)
     return false;
 }
 
-bool Game::canPerform(Player *pPlayer, string basicString, Player *pPlayer1)
+bool Game::canPerform(Player *actor, string action, Player *pendingTarget)
 {
+    if(pendingTarget == nullptr)
+    {
+        if(action == "Gather")
+            return true;
+        else if(action == "Tax" && actor->getStatus().canTax && !actor->getStatus().isSanctioned)
+        {
+            return true;
+        }
+        else if(action == "Bribe" && actor->getCoins() >= 4)
+            return true;
+    }
+    else
+    {
+        if(action == "Arrest" && actor->getStatus().canArrest && !pendingTarget->getStatus().isArrested && pendingTarget->getCoins() > 0)
+            return true;
+        else if(action == "Sanction" && !pendingTarget->getStatus().isSanctioned)
+            return true;
+        else if(action == "Coup" && actor->getCoins() >= 7 && pendingTarget->getStatus().isAlive)
+            return true;
+    }
     return false;
 }
 
-void Game::perform(Player *pPlayer, string basicString, Player *pPlayer1)
+void Game::perform(Player *actor, string action, Player *pendingTarget)
 {
-
+    if(pendingTarget == nullptr)
+    {
+        if(action == "Gather")
+            actor->gather();
+        else if(action == "Tax")
+            actor->tax();
+        else if(action == "Bribe")
+            actor->bribe();
+    }
+    else
+    {
+        if(action == "Arrest")
+            actor->arrest(*pendingTarget);
+        else if(action == "Sanction")
+            actor->sanction(*pendingTarget);
+        else if(action == "Coup")
+            actor->coup(*pendingTarget);
+    }
 }

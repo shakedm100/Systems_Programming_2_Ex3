@@ -24,7 +24,7 @@ public:
 
     bool actionNeedsTarget(string basicString);
 
-    bool canPerform(Player *pPlayer, string basicString, Player *pPlayer1);
+    bool canPerform(Player *actor, string basicString, Player *pendingTarget);
 
     void perform(Player *pPlayer, string basicString, Player *pPlayer1);
 };

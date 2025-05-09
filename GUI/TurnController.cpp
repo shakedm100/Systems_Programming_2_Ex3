@@ -87,11 +87,21 @@ void TurnController::update() {
 
         case Phase::ResolveAction:
             applyPending();
+        if (game.getCurrentTurn()->getExtraTurns() > 0) {
+            game.getCurrentTurn()->decreaseExtraTurns();
+            phase = Phase::StartTurn;
+            pendingTarget = nullptr;
+        }
+        else {
+            // no extra turns left, pass to the next player
             phase = Phase::EndTurn;
-            break;
+        }
+        break;
 
         case Phase::EndTurn:
+            game.getCurrentTurn()->clearStatusEffects();
             game.nextTurn();
+            pendingTarget = nullptr;
             phase = Phase::StartTurn;
             break;
 
@@ -102,8 +112,10 @@ void TurnController::update() {
 
 void TurnController::render() {
     // action row
-    for (auto& b : btns)      wnd.draw(b);
-    for (auto& l : btnLabels) wnd.draw(l);
+    for (auto& b : btns)
+        wnd.draw(b);
+    for (auto& l : btnLabels)
+        wnd.draw(l);
     // target row if needed
     if (phase == Phase::ChooseTarget) {
         for (auto& b : targetBtns) wnd.draw(b);
@@ -140,11 +152,15 @@ void TurnController::setupForCurrentPlayer() {
 
 void TurnController::applyPending() {
     auto* actor = game.getCurrentTurn();
-    if (game.canPerform(actor, pendingAction, pendingTarget)) {
+    if (game.canPerform(actor, pendingAction, pendingTarget))
+    {
         game.perform(actor, pendingAction, pendingTarget);
-    } else {
+    }
+    else
+    {
         errorLabel.setString("Illegal move!");
         centerOrigin(errorLabel);
+        game.getCurrentTurn()->increaseExtraTurns();
         phase = Phase::ChooseAction;
         return;
     }
