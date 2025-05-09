@@ -1,14 +1,14 @@
 #include "GameSetup.hpp"
-#include "Roles/headers/Governor.hpp"
-#include "Roles/headers/Spy.hpp"
-#include "Roles/headers/Baron.hpp"
-#include "Roles/headers/General.hpp"
-#include "Roles/headers/Judge.hpp"
-#include "Roles/headers/Merchant.hpp"
+#include "../Roles/headers/Governor.hpp"
+#include "../Roles/headers/Spy.hpp"
+#include "../Roles/headers/Baron.hpp"
+#include "../Roles/headers/General.hpp"
+#include "../Roles/headers/Judge.hpp"
+#include "../Roles/headers/Merchant.hpp"
 #include <bits/random.h>
 #include <random>     // for mt19937, uniform_int_distribution
 #include <stdexcept>
-#include "GUI/game_window.hpp"
+#include "../GUI/game_window.hpp"
 
 Game createGame(const int playersCount)
 {

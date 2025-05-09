@@ -1,6 +1,6 @@
 #include "Game.hpp"
 #include <iostream>
-#include "Exceptions/NoWinnerException.hpp"
+#include "../Exceptions/NoWinnerException.hpp"
 
 void Game::turn() const
 {

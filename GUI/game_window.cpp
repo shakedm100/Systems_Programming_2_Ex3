@@ -1,9 +1,9 @@
 #include <SFML/Graphics.hpp>
-#include "../Game.hpp"
+#include "../Logic/Game.hpp"
 #include "../Roles/headers/Player.hpp"
 #include <vector>
 #include <string>
-#include "../GameSetup.hpp"
+#include "../Logic/GameSetup.hpp"
 
 // --- Game Phases ---
 enum class Phase {
