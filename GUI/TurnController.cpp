@@ -21,11 +21,17 @@ TurnController::TurnController(Game& game, sf::Font& font, sf::RenderWindow& wnd
     currentPlayer.setFont(font);
     currentPlayer.setCharacterSize(20);
     currentPlayer.setFillColor(sf::Color::White);
+
     // coin label
     coinLabel.setFont(font);
     coinLabel.setCharacterSize(18);
     coinLabel.setFillColor(sf::Color::Yellow);
     coinLabel.setPosition(20.f, wnd.getSize().y - 40.f);
+    // Role label
+    roleLabel.setFont(font);
+    roleLabel.setCharacterSize(32);
+    roleLabel.setFillColor(sf::Color::White);
+
     // error label
     errorLabel.setFont(font);
     errorLabel.setCharacterSize(24);
@@ -106,6 +112,7 @@ void TurnController::render() {
     // status texts
     wnd.draw(currentPlayer);
     wnd.draw(coinLabel);
+    wnd.draw(roleLabel);
     if (!errorLabel.getString().isEmpty())
         wnd.draw(errorLabel);
 }
@@ -116,10 +123,19 @@ void TurnController::setupForCurrentPlayer() {
     // update player name & coins
     auto* p = game.getCurrentTurn();
     currentPlayer.setString(p->getName() + "'s Turn");
-    centerOrigin(currentPlayer);
-    currentPlayer.setPosition(wnd.getSize().x/2.f, 80.f);
+    roleLabel.setString("Role: " + game.getCurrentTurn()->getClassName());
     coinLabel.setString("Coins: " + std::to_string(p->getCoins()));
     errorLabel.setString("");
+
+    auto tb = currentPlayer.getLocalBounds();
+    currentPlayer.setOrigin(tb.left + tb.width, tb.top + tb.height);
+    float marginX = 20.f, marginY = 20.f;
+    currentPlayer.setPosition(wnd.getSize().x - marginX, wnd.getSize().y - marginY);
+
+    auto rl = roleLabel.getLocalBounds();
+    roleLabel.setOrigin(rl.left + rl.width/2.f, rl.top  + rl.height);
+    float marginY2 = 60.f;
+    roleLabel.setPosition(wnd.getSize().x/2.f, wnd.getSize().y - marginY2);
 }
 
 void TurnController::applyPending() {
@@ -134,7 +150,8 @@ void TurnController::applyPending() {
     }
 }
 
-void TurnController::enterTargetMode() {
+void TurnController::enterTargetMode()
+{
     targetBtns.clear(); targetLbls.clear(); otherPlayers.clear();
     float x = 20.f, y = 80.f + 60.f;
     for (auto* p : game.getPlayers()) {
@@ -150,16 +167,19 @@ void TurnController::enterTargetMode() {
     }
 }
 
-void TurnController::clearUI() {
+void TurnController::clearUI()
+{
     targetBtns.clear(); targetLbls.clear(); otherPlayers.clear();
 }
 
-void TurnController::centerOrigin(sf::Text& t) {
+void TurnController::centerOrigin(sf::Text& t)
+{
     auto b = t.getLocalBounds();
     t.setOrigin(b.left + b.width/2.f, b.top + b.height/2.f);
 }
 
-void TurnController::centerTextIn(const sf::RectangleShape& b, sf::Text& t) {
+void TurnController::centerTextIn(const sf::RectangleShape& b, sf::Text& t)
+{
     auto bb = b.getGlobalBounds();
     auto tb = t.getLocalBounds();
     t.setPosition(

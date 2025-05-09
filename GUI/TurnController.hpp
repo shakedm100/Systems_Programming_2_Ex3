@@ -40,6 +40,7 @@ private:
     sf::Text currentPlayer;
     sf::Text coinLabel;
     sf::Text errorLabel;
+    sf::Text roleLabel;
 
 public:
 

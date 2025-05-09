@@ -58,7 +58,8 @@ std::string promptPlayerName(int playerIndex) {
 }
 
 int gameWindow(int players) {
-    sf::RenderWindow window(sf::VideoMode(800,600), "Coup Game");
+    sf::RenderWindow window(sf::VideoMode(900,600), "Coup Game");
+    window.setFramerateLimit(60);
     sf::Font font;
     font.loadFromFile("assets/arial.ttf");
     Game game = createGame(players);
