@@ -71,7 +71,7 @@ bool Game::canPerform(Player *actor, string action, Player *pendingTarget)
 {
     if(pendingTarget == nullptr)
     {
-        if(action == "Gather")
+        if(action == "Gather" && !actor->getStatus().isSanctioned)
             return true;
         else if(action == "Tax" && actor->getStatus().canTax && !actor->getStatus().isSanctioned)
         {
@@ -84,7 +84,7 @@ bool Game::canPerform(Player *actor, string action, Player *pendingTarget)
     {
         if(action == "Arrest" && actor->getStatus().canArrest && !pendingTarget->getStatus().isArrested && pendingTarget->getCoins() > 0)
             return true;
-        else if(action == "Sanction" && !pendingTarget->getStatus().isSanctioned)
+        else if(action == "Sanction" && !pendingTarget->getStatus().isSanctioned && actor->getCoins() >= 3)
             return true;
         else if(action == "Coup" && actor->getCoins() >= 7 && pendingTarget->getStatus().isAlive)
             return true;
