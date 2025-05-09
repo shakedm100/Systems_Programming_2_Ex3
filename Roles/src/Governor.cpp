@@ -3,7 +3,7 @@
 
 bool Governor::tax()
 {
-    if(!isSanctioned)
+    if(!status.isSanctioned)
     {
         coins+=2;
         return true;
@@ -12,13 +12,9 @@ bool Governor::tax()
     return false;
 }
 
-/**
- * TODO: Implement this function
- * @param role
- */
 void Governor::abortTax(Player &role)
 {
-    Player::abortTax(role);
+    role.setStatus().canTax = false;
 }
 
 string Governor::getClassName()
