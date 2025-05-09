@@ -24,6 +24,7 @@ bool Player::bribe()
     if(coins >= 4)
     {
         coins-=4;
+        extraTurns = 2;
         return true;
     }
 
@@ -112,6 +113,26 @@ void Player::preventCoup()
 void Player::preventBribe()
 {
     throw NotImplementedException("Not a Judge");
+}
+
+Status Player::getStatus() const
+{
+    return status;
+}
+
+Status & Player::setStatus()
+{
+    return status;
+}
+
+int Player::getExtraTurns() const
+{
+    return extraTurns;
+}
+
+void Player::decreaseExtraTurns()
+{
+    extraTurns--;
 }
 
 std::ostream& operator<<(std::ostream& os, const Player& player) {

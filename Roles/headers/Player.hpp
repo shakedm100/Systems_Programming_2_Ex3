@@ -9,8 +9,10 @@ struct Status
     bool isArrested;
     bool canArrest;
     bool isAlive;
+    bool canTax;
 
-    Status() : isSanctioned(false), isArrested(false), canArrest(false), isAlive(false) {};
+    Status() : isSanctioned(false), isArrested(false), canArrest(false), isAlive(false),
+    canTax(true) {};
 };
 
 class Player
@@ -20,9 +22,10 @@ protected:
     bool isTurn;
     int coins;
     Status status;
+    int extraTurns;
 
 public:
-    explicit Player(const string& name) : name(name), isTurn(false), coins(0), status() {};
+    explicit Player(const string& name) : name(name), isTurn(false), coins(0), status(), extraTurns(0) {};
 
     virtual ~Player() = default;
 
@@ -44,4 +47,8 @@ public:
     virtual void preventBribe(); //Judge only action
     friend ostream& operator<<(ostream& os, const Player& player);
     virtual std::string getClassName() = 0;
+    Status getStatus() const;
+    Status& setStatus();
+    int getExtraTurns() const;
+    void decreaseExtraTurns();
 };
