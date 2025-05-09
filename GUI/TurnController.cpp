@@ -78,55 +78,62 @@ void TurnController::handleClick(const sf::Event& evt) {
     }
 }
 
-void TurnController::update() {
-    switch (phase) {
+void TurnController::update()
+{
+    switch (phase)
+    {
         case Phase::StartTurn:
             setupForCurrentPlayer();
         phase = Phase::ChooseAction;
         break;
         case Phase::ResolveAction:
             applyPending();
-        if (game.checkWinner()) {
+        if (game.checkWinner())
             finishGame();
-        } else if (game.getCurrentTurn()->getExtraTurns() > 0) {
+        else if (game.getCurrentTurn()->getExtraTurns() > 0)
+        {
             game.getCurrentTurn()->decreaseExtraTurns();
             phase = Phase::StartTurn;
-        } else {
-            phase = Phase::EndTurn;
         }
+        else
+            phase = Phase::EndTurn;
         break;
         case Phase::EndTurn:
             game.nextTurn();
         phase = Phase::StartTurn;
         break;
-        case Phase::GameOver:
-            // nothing to update
-                break;
         default:
             break;
     }
 }
 
-void TurnController::render() {
+void TurnController::render()
+{
     // draw only; clearing&display done in main
-    if (phase==Phase::GameOver) {
+    if (phase==Phase::GameOver)
         wnd.draw(gameOverLabel);
-    } else {
-        for (auto& b:btns) wnd.draw(b);
-        for (auto& l:btnLabels) wnd.draw(l);
-        if (phase==Phase::ChooseTarget) {
+    else
+    {
+        for (auto& b:btns)
+            wnd.draw(b);
+        for (auto& l:btnLabels)
+            wnd.draw(l);
+        if (phase==Phase::ChooseTarget)
+        {
             for (auto& b:targetBtns) wnd.draw(b);
             for (auto& l:targetLbls) wnd.draw(l);
         }
         wnd.draw(currentPlayer);
         wnd.draw(roleLabel);
         wnd.draw(coinLabel);
-        if (!errorLabel.getString().isEmpty()) wnd.draw(errorLabel);
+        if (!errorLabel.getString().isEmpty())
+            wnd.draw(errorLabel);
     }
 }
 
 // helpers
-void TurnController::setupForCurrentPlayer() {
+void TurnController::setupForCurrentPlayer()
+{
     clearUI();
     // update player name & coins
     auto* p = game.getCurrentTurn();
