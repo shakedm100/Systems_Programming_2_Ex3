@@ -4,5 +4,5 @@
 class IllegalMoveException : public std::logic_error
 {
 public:
-    explicit IllegalMoveException(const char* message) : std::logic_error(message) { };
+    explicit IllegalMoveException(std::string message) : std::logic_error(message) { };
 };
