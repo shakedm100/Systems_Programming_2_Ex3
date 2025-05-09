@@ -22,7 +22,6 @@ private:
     sf::Font& font;
     sf::RenderWindow& wnd;
     Phase phase;
-    bool gameFinished;
 
     // main action buttons
     std::vector<std::string> actions;

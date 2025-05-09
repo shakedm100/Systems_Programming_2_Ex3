@@ -66,16 +66,15 @@ int gameWindow(int players) {
 
     TurnController controller(game, font, window);
 
-    while (window.isOpen()) {
-        sf::Event evt;
-        while (window.pollEvent(evt)) {
-            if (evt.type == sf::Event::Closed)
+    while(window.isOpen()){
+        sf::Event e;
+        while(window.pollEvent(e))
+        {
+            if(e.type==sf::Event::Closed)
                 window.close();
-            controller.handleClick(evt);
+            controller.handleClick(e);
         }
-
         controller.update();
-
         window.clear({30,30,30});
         controller.render();
         window.display();
