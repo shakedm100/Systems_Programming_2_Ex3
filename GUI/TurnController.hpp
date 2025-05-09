@@ -22,6 +22,7 @@ private:
     sf::Font& font;
     sf::RenderWindow& wnd;
     Phase phase;
+    const int MAX_PLAYERS = 6;
 
     // main action buttons
     std::vector<std::string> actions;
@@ -43,7 +44,7 @@ private:
     sf::Text errorLabel;
     sf::Text roleLabel;
     sf::Text gameOverLabel;
-
+    std::vector<sf::Text> playerStatusLabels;
 public:
 
     TurnController(Game& game, sf::Font& font, sf::RenderWindow& wnd);
@@ -59,6 +60,6 @@ private:
     void centerOrigin(sf::Text& t);
     void centerTextIn(const sf::RectangleShape& b, sf::Text& t);
     void finishGame();
-
+    void updateStatusLabels();
 };
 

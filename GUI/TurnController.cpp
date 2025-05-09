@@ -1,5 +1,7 @@
 #include "TurnController.hpp"
 
+#include <sstream>
+
 TurnController::TurnController(Game& game, sf::Font& font, sf::RenderWindow& wnd)
             : game(game), font(font), wnd(wnd)
 {
@@ -40,10 +42,20 @@ TurnController::TurnController(Game& game, sf::Font& font, sf::RenderWindow& wnd
     centerOrigin(errorLabel);
     errorLabel.setPosition(wnd.getSize().x/2.f, wnd.getSize().y/2.f);
 
+    playerStatusLabels.resize(MAX_PLAYERS);
+    for (int i = 0; i < MAX_PLAYERS; ++i)
+    {
+        auto& lbl = playerStatusLabels[i];
+        lbl.setFont(font);
+        lbl.setCharacterSize(18);
+        lbl.setFillColor(sf::Color::White);
+    }
+
     phase = Phase::StartTurn;
 }
 
-void TurnController::handleClick(const sf::Event& evt) {
+void TurnController::handleClick(const sf::Event& evt)
+{
     if (evt.type != sf::Event::MouseButtonPressed || evt.mouseButton.button != sf::Mouse::Left)
         return;
     sf::Vector2f m(evt.mouseButton.x, evt.mouseButton.y);
@@ -114,6 +126,9 @@ void TurnController::render()
         wnd.draw(gameOverLabel);
     else
     {
+        updateStatusLabels();
+        for (auto& l : playerStatusLabels)
+            wnd.draw(l);
         for (auto& b:btns)
             wnd.draw(b);
         for (auto& l:btnLabels)
@@ -128,6 +143,8 @@ void TurnController::render()
         wnd.draw(coinLabel);
         if (!errorLabel.getString().isEmpty())
             wnd.draw(errorLabel);
+        for (int i = 0; i < MAX_PLAYERS; ++i)
+            wnd.draw(playerStatusLabels[i]);
     }
 }
 
@@ -153,15 +170,55 @@ void TurnController::setupForCurrentPlayer()
     roleLabel.setPosition(wnd.getSize().x/2.f, wnd.getSize().y - marginY2);
 }
 
+void TurnController::updateStatusLabels()
+{
+    auto players = game.getPlayers();  // assume this returns a std::vector<Player*>
+    const float rightMargin = 20.f;
+    const float lineHeight = 22.f;     // character size + spacing
+    const float startY    = 20.f;
+
+    for (int i = 0; i < MAX_PLAYERS; ++i) {
+        auto& lbl = playerStatusLabels[i];
+        if (i < (int)players.size()) {
+            Player* p = players[i];
+
+            // Build the status string
+            std::ostringstream ss;
+            ss << "-------------------------\n"
+               << p->getName() << "\n"
+               << p->getClassName() << "\n"
+               << (p->getStatus().isAlive ? "Alive" : "Dead") << "\n"
+               << "Coins: " << p->getCoins();
+            if (p->getStatus().isSanctioned)        // adjust if you have multiple effect types
+                ss << "\n[sanctioned]";
+            ss << "\n-------------------------\n";
+            lbl.setString(ss.str());
+
+            // position: anchored to right
+            float x = wnd.getSize().x - rightMargin;
+            float y = startY + i * lineHeight * 6; // 4 lines per player
+            // to right-align each block, set origin to right edge:
+            sf::FloatRect bounds = lbl.getLocalBounds();
+            lbl.setOrigin(bounds.width, 0);
+            lbl.setPosition(x, y);
+        } else {
+            // hide unused labels
+            lbl.setString("");
+        }
+    }
+}
+
 void TurnController::applyPending() {
     auto* actor = game.getCurrentTurn();
     if (game.canPerform(actor, pendingAction, pendingTarget))
     {
         game.perform(actor, pendingAction, pendingTarget);
+        pendingTarget = nullptr;
     }
     else
     {
         errorLabel.setString("Illegal move!");
+        pendingTarget = nullptr;
         centerOrigin(errorLabel);
         game.getCurrentTurn()->increaseExtraTurns();
         phase = Phase::ChooseAction;
