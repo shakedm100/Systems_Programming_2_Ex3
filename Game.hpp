@@ -20,4 +20,11 @@ public:
     void nextTurn();
     void endGame() const;
     std::vector<Player*> getPlayers();
+    std::vector<string> getActionNames();
+
+    bool actionNeedsTarget(string basicString);
+
+    bool canPerform(Player *pPlayer, string basicString, Player *pPlayer1);
+
+    void perform(Player *pPlayer, string basicString, Player *pPlayer1);
 };
