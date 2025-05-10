@@ -31,11 +31,14 @@ bool Player::bribe()
     return false;
 }
 
-bool Player::arrest(Player& Player)
+bool Player::arrest(Player& player)
 {
-    if(Player.coins > 0 && !Player.status.isArrested)
+    if(player.getClassName() == "General")
+        return true; //Do nothing but waste turn
+
+    if(player.coins > 0 && !player.status.isArrested)
     {
-        Player.coins--;
+        player.coins--;
         this->coins++;
         return true;
     }
@@ -43,11 +46,11 @@ bool Player::arrest(Player& Player)
     return false;
 }
 
-bool Player::sanction(Player& Player)
+bool Player::sanction(Player& player)
 {
     if(this->coins >= 3)
     {
-        Player.status.isSanctioned = true;
+        player.status.isSanctioned = true;
         this->coins -= 3;
         return true;
     }
@@ -85,7 +88,7 @@ string Player::getName() const
     return name;
 }
 
-void Player::abortTax(Player& Player)
+void Player::abortTax(Player& player)
 {
     throw NotImplementedException("Not a Governor");
 }
@@ -146,6 +149,7 @@ void Player::clearStatusEffects()
     status.canTax = true;
     status.isArrested = false;
     status.isSanctioned = false;
+    status.isInvested = false;
 }
 
 std::ostream& operator<<(std::ostream& os, const Player& player) {

@@ -21,7 +21,7 @@ link_directories(
 
 # 4) Your source files
 set(SRC_FILES
-        Game.cpp
+        Logic/Game.cpp
         Roles/src/Governor.cpp
         Roles/src/Spy.cpp
         Roles/src/General.cpp
@@ -32,8 +32,12 @@ set(SRC_FILES
         GUI/main_window.cpp
         GUI/game_window.cpp
         GUI/game_window.hpp
-        GameSetup.cpp
-        GameSetup.hpp
+        Logic/GameSetup.cpp
+        Logic/GameSetup.hpp
+        GUI/TurnController.cpp
+        GUI/TurnController.hpp
+        Exceptions/IllegalMoveException.hpp
+        Roles/headers/Player.hpp
 )
 
 # 5) Build the executable

@@ -23,11 +23,17 @@ private:
     sf::RenderWindow& wnd;
     Phase phase;
     const int MAX_PLAYERS = 6;
+    std::vector<Player*> peekTargets;
 
     // main action buttons
     std::vector<std::string> actions;
     std::vector<sf::RectangleShape> btns;
     std::vector<sf::Text>          btnLabels;
+
+    // role-specific (special) action buttons:
+    std::vector<std::string>        specialActions;
+    std::vector<sf::RectangleShape> specialBtns;
+    std::vector<sf::Text>           specialLabels;
 
     // target selection
     std::vector<sf::RectangleShape> targetBtns;

@@ -8,6 +8,6 @@ class Governor : public Player
     explicit Governor(const string& name) : Player(name) {}
 
     bool tax() override;
-    void abortTax(Player &role) override;
+    void abortTax(Player &player) override;
     string getClassName() override;
 };

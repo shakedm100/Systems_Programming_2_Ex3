@@ -11,9 +11,10 @@ struct Status
     bool isAlive;
     bool canTax;
     bool canRevert; // Name is not intuitive.
+    bool isInvested;
 
     Status() : isSanctioned(false), isArrested(false), canArrest(true), isAlive(true),
-    canTax(true) {};
+    canTax(true), isInvested(false) {};
 };
 
 class Player
@@ -32,8 +33,8 @@ public:
     void gather();
     virtual bool tax();
     bool bribe();
-    bool arrest(Player& role);
-    bool sanction(Player& role);
+    bool arrest(Player& player);
+    bool sanction(Player& player);
     bool coup(Player& player) const;
     int getCoins() const;
     bool getCanArrest() const;

@@ -80,7 +80,8 @@ bool Game::actionNeedsTarget(string action)
 {
     if(action == "Gather" || action == "Tax" || action == "Bribe" || action == "Skip")
         return false;
-    if (action == "Arrest"   || action == "Sanction" || action == "Coup")
+    if (action == "Arrest"   || action == "Sanction" || action == "Coup" || action == "Prevent Tax" ||
+        action == "Peek" || "Prevent Arrest")
         return true;
 
     return false;
@@ -132,6 +133,27 @@ std::string Game::whyCannotPerform(Player* actor, const std::string& action, Pla
                 return pendingTarget->getName() + " is already out of the game";
             return "";
         }
+        if(action == "Prevent Tax")
+        {
+            if(!pendingTarget->getStatus().canTax)
+                return "Target already can't tax";
+            else if(actor->getClassName() != "Governor")
+                return "Actor is not a governor";
+            else
+            {
+                return "";
+            }
+        }
+        if(action == "Peek")
+        {
+            return "";
+        }
+        if(action == "Prevent Arrest")
+        {
+            if(!pendingTarget->getStatus().canArrest)
+                return pendingTarget->getName() + " can't arrest already";
+            return "";
+        }
     }
 
     return "unrecognized action \"" + action + "\"";
@@ -176,6 +198,12 @@ void Game::perform(Player *actor, string action, Player *pendingTarget)
                 }
             }
         }
+        if(action == "Prevent Tax")
+            actor->abortTax(*pendingTarget);
+        if(action == "Peek")
+            actor->peek(*pendingTarget);
+        if(action == "Prevent Arrest")
+            actor->blockArrest(*pendingTarget);
     }
 }
 

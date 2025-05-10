@@ -63,6 +63,20 @@ void TurnController::handleClick(const sf::Event& evt)
     switch (phase)
     {
         case Phase::ChooseAction:
+            for (size_t i = 0; i < specialBtns.size(); ++i) {
+                if (specialBtns[i].getGlobalBounds().contains(m)) {
+                    pendingAction = specialActions[i];
+                    // role‐specific actions might or might not need a target:
+                    if (game.actionNeedsTarget(pendingAction)) {
+                        enterTargetMode();
+                        phase = Phase::ChooseTarget;
+                    } else {
+                        phase = Phase::ResolveAction;
+                    }
+                    return;
+                }
+            }
+
             for (size_t i=0; i<btns.size(); ++i)
             {
                 if (btns[i].getGlobalBounds().contains(m))
@@ -117,6 +131,8 @@ void TurnController::update()
             phase = Phase::EndTurn;
         break;
         case Phase::EndTurn:
+            game.getCurrentTurn()->clearStatusEffects();
+            peekTargets.clear();
             game.nextTurn();
         phase = Phase::StartTurn;
         break;
@@ -142,6 +158,11 @@ void TurnController::render()
             wnd.draw(b);
         for (auto& l:btnLabels)
             wnd.draw(l);
+        for (auto& b : specialBtns)
+            wnd.draw(b);
+        for (auto& t : specialLabels)
+            wnd.draw(t);
+
         if (phase==Phase::ChooseTarget)
         {
             for (auto& b:targetBtns) wnd.draw(b);
@@ -177,6 +198,33 @@ void TurnController::setupForCurrentPlayer()
     roleLabel.setOrigin(rl.left + rl.width/2.f, rl.top  + rl.height);
     float marginY2 = 60.f;
     roleLabel.setPosition(wnd.getSize().x/2.f, wnd.getSize().y - marginY2);
+
+    auto role = p->getClassName();
+    if (role == "Governor") {
+        specialActions.push_back("Prevent Tax");
+    }
+    else if (role == "Spy") {
+        specialActions.push_back("Peek");
+        specialActions.push_back("Prevent Arrest");
+    }
+
+
+    // Lay them out down the left side:
+    float sx = 20.f;
+    float sy = wnd.getSize().y - 80.f;    // start ~80px up from bottom
+    for (auto& name : specialActions) {
+        sf::RectangleShape b({140.f, 36.f});
+        b.setPosition(sx, sy);
+        b.setFillColor({180,50,50});
+        specialBtns.push_back(b);
+
+        sf::Text lbl(name, font, 20);
+        lbl.setFillColor(sf::Color::White);
+        centerTextIn(b, lbl);
+        specialLabels.push_back(lbl);
+
+        sy -= 50.f;  // stack upward
+    }
 }
 
 void TurnController::updateStatusLabels()
@@ -196,16 +244,23 @@ void TurnController::updateStatusLabels()
             ss << "-------------------------\n"
                << p->getName() << "\n"
                << p->getClassName() << "\n"
-               << (p->getStatus().isAlive ? "Alive" : "Dead") << "\n"
-               << "Coins: " << p->getCoins();
+               << (p->getStatus().isAlive ? "Alive" : "Dead") << "\n";
+            if(!peekTargets.empty() && std::find(peekTargets.begin(), peekTargets.end(), p) != peekTargets.end())
+                ss << "Coins: " << p->getCoins() << "\n";
             if (p->getStatus().isSanctioned)        // adjust if you have multiple effect types
-                ss << "\n[sanctioned]";
+                ss << "[Sanctioned]";
+            if(!p->getStatus().canArrest)
+                ss << " [Can't Arrest]";
+            if(p->getStatus().isInvested)
+                ss << " [Invested]";
+            if(!p->getStatus().canTax)
+                ss << " [Can't Tax]";
             ss << "\n-------------------------\n";
             lbl.setString(ss.str());
 
             // position: anchored to right
             float x = wnd.getSize().x - rightMargin;
-            float y = startY + i * lineHeight * 6; // 4 lines per player
+            float y = startY + i * lineHeight * 6; // About 6 lines per player
             // to right-align each block, set origin to right edge:
             sf::FloatRect bounds = lbl.getLocalBounds();
             lbl.setOrigin(bounds.width, 0);
@@ -224,6 +279,11 @@ void TurnController::applyPending() {
         if (game.canPerform(actor, pendingAction, pendingTarget))
         {
             game.perform(actor, pendingAction, pendingTarget);
+            if (pendingAction == "Peek")
+            {
+                peekTargets.push_back(pendingTarget);
+                phase           = Phase::ChooseAction;
+            }
             pendingTarget = nullptr;
         }
     }
@@ -265,7 +325,12 @@ void TurnController::enterTargetMode()
 
 void TurnController::clearUI()
 {
-    targetBtns.clear(); targetLbls.clear(); otherPlayers.clear();
+    targetBtns.clear();
+    targetLbls.clear();
+    otherPlayers.clear();
+    specialActions.clear();
+    specialBtns.clear();
+    specialLabels.clear();
 }
 
 void TurnController::centerOrigin(sf::Text& t)
