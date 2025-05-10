@@ -2,7 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include "../Logic/Game.hpp"
 #include <string>
-#include "../Logic/GameSetup.hpp"
+#include "../Logic/GameUtil.hpp"
 #include "TurnController.hpp"
 
 

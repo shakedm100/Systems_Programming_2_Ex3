@@ -95,7 +95,7 @@ bool Game::actionNeedsTarget(string action)
         action == "Invest")
         return false;
     if (action == "Arrest"   || action == "Sanction" || action == "Coup" || action == "Prevent Tax" ||
-        action == "Peek" || "Prevent Arrest" || action == "Reverse Coup")
+        action == "Peek" || action == "Prevent Arrest" || action == "Reverse Coup")
         return true;
 
     return false;
