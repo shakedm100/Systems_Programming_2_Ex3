@@ -55,7 +55,7 @@ void Game::nextTurn()
                 current_turn->setStatus().selfRescue = false;
                 alivePlayers.erase(alivePlayers.begin() + i);
             }
-            return;
+            break;
         }
         else if(current_turn == alivePlayers[i] && i == alivePlayers.size() - 1)
         {
@@ -65,9 +65,12 @@ void Game::nextTurn()
                 current_turn->setStatus().selfRescue = false;
                 alivePlayers.erase(alivePlayers.begin() + i);
             }
-            return;
+            break; //Not necessary here
         }
     }
+
+    if(current_turn->getClassName() == "Merchant" && current_turn->getCoins() >= 3)
+        current_turn->aboveThreeCoins();
 }
 
 void Game::endGame() const
@@ -136,6 +139,8 @@ std::string Game::whyCannotPerform(Player* actor, const std::string& action, Pla
                 return pendingTarget->getName() + " is already arrested";
             if (pendingTarget->getCoins() == 0)
                 return pendingTarget->getName() + " has no coins to seize";
+            if(pendingTarget->getClassName() == "Merchant" && pendingTarget->getCoins() < 2)
+                return pendingTarget->getName() + " has not enough coins to seize";
             return "";
         }
         if (action == "Sanction") {

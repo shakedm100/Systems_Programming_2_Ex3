@@ -50,6 +50,7 @@ public:
     virtual void investFailure(); //Baron only action
     virtual void reverseCoup(Player &save); //General only action
     virtual void preventBribe(); //Judge only action
+    virtual void aboveThreeCoins(); //Merchant only action
     friend ostream& operator<<(ostream& os, const Player& player);
     virtual std::string getClassName() = 0;
     Status getStatus() const;

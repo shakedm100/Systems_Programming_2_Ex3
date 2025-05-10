@@ -36,6 +36,12 @@ bool Player::arrest(Player& player)
     if(player.getClassName() == "General")
         return true; //Do nothing but waste turn
 
+    if(player.getClassName() == "Merchant")
+    {
+        player.coins -= 2;
+        return true;
+    }
+
     if(player.coins > 0 && !player.status.isArrested)
     {
         player.coins--;
@@ -139,6 +145,11 @@ void Player::reverseCoup(Player &save)
 void Player::preventBribe()
 {
     throw NotImplementedException("Not a Judge");
+}
+
+void Player::aboveThreeCoins()
+{
+    throw NotImplementedException("Not a Merchant");
 }
 
 Status Player::getStatus() const
