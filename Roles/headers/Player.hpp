@@ -10,12 +10,12 @@ struct Status
     bool canArrest;
     bool isAlive;
     bool canTax;
-    bool canRevert; // Name is not intuitive.
+    bool canBeResurrected;
     bool isInvested;
     bool holdTurn; // Helper bool
 
     Status() : isSanctioned(false), isArrested(false), canArrest(true), isAlive(true),
-    canTax(true), canRevert(true) ,isInvested(false), holdTurn(false) {};
+    canTax(true), canBeResurrected(false) ,isInvested(false), holdTurn(false){};
 };
 
 class Player
@@ -47,7 +47,7 @@ public:
     virtual void invest(); //Baron only action
     virtual void investSuccess(); //Baron only action
     virtual void investFailure(); //Baron only action
-    virtual void preventCoup(); //General only action
+    virtual void reverseCoup(Player &save); //General only action
     virtual void preventBribe(); //Judge only action
     friend ostream& operator<<(ostream& os, const Player& player);
     virtual std::string getClassName() = 0;

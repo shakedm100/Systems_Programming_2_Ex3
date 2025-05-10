@@ -63,6 +63,7 @@ bool Player::coup(Player& player) const
     if(this->coins >= 7)
     {
         player.status.isAlive = false;
+        player.setStatus().canBeResurrected = true;
         return true;
     }
     return false;
@@ -118,7 +119,7 @@ void Player::investFailure()
     throw NotImplementedException("Not a Baron");
 }
 
-void Player::preventCoup()
+void Player::reverseCoup(Player &save)
 {
     throw NotImplementedException("Not a General");
 }

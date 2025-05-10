@@ -82,7 +82,7 @@ bool Game::actionNeedsTarget(string action)
         action == "Invest")
         return false;
     if (action == "Arrest"   || action == "Sanction" || action == "Coup" || action == "Prevent Tax" ||
-        action == "Peek" || "Prevent Arrest")
+        action == "Peek" || "Prevent Arrest" || action == "Reverse Coup")
         return true;
 
     return false;
@@ -167,6 +167,16 @@ std::string Game::whyCannotPerform(Player* actor, const std::string& action, Pla
                 return "Actor is not a spy";
             return "";
         }
+        if(action == "Reverse Coup")
+        {
+            if(pendingTarget->getStatus().isAlive)
+                return pendingTarget->getName() + " is still alive";
+            if(!pendingTarget->getStatus().canBeResurrected)
+                return pendingTarget->getName() + " can't be resurrected anymore";
+            if(actor->getCoins() < 5)
+                return "You need at least 5 coins to reverse coup";
+            return "";
+        }
     }
 
     return "unrecognized action \"" + action + "\"";
@@ -223,6 +233,11 @@ void Game::perform(Player *actor, string action, Player *pendingTarget)
             actor->peek(*pendingTarget);
         if(action == "Prevent Arrest")
             actor->blockArrest(*pendingTarget);
+        if(action == "Reverse Coup")
+        {
+            actor->reverseCoup(*pendingTarget);
+            alivePlayers.push_back(pendingTarget);
+        }
     }
 }
 

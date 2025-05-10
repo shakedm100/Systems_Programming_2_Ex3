@@ -68,6 +68,7 @@ private:
     void finishTurn();
     void applyPending();
     void enterTargetMode();
+    void enterResurrectionTargetMode();
     void clearUI();
     void centerOrigin(sf::Text& t);
     void centerTextIn(const sf::RectangleShape& b, sf::Text& t);

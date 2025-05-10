@@ -67,8 +67,12 @@ void TurnController::handleClick(const sf::Event& evt)
                 if (specialBtns[i].getGlobalBounds().contains(m)) {
                     pendingAction = specialActions[i];
                     // role‐specific actions might or might not need a target:
-                    if (game.actionNeedsTarget(pendingAction)) {
-                        enterTargetMode();
+                    if (game.actionNeedsTarget(pendingAction))
+                    {
+                        if(pendingAction == "Reverse Coup")
+                            enterResurrectionTargetMode();
+                        else
+                            enterTargetMode();
                         phase = Phase::ChooseTarget;
                     } else {
                         phase = Phase::ResolveAction;
@@ -215,6 +219,10 @@ void TurnController::setupForCurrentPlayer()
             }
         }
     }
+    else if(role == "General")
+    {
+        specialActions.push_back("Reverse Coup");
+    }
 
     coinLabel.setString("Coins: " + std::to_string(p->getCoins()));
 
@@ -329,6 +337,23 @@ void TurnController::enterTargetMode()
     float x = 20.f, y = 80.f + 60.f;
     for (auto* p : game.getAlivePlayers()) {
         if (p == game.getCurrentTurn()) continue;
+        otherPlayers.push_back(p);
+        sf::RectangleShape b({120.f,40.f}); b.setPosition(x,y); b.setFillColor({200,80,80});
+        targetBtns.push_back(b);
+        sf::Text t(p->getName(), font, 18);
+        t.setFillColor(sf::Color::White);
+        centerTextIn(b, t);
+        targetLbls.push_back(t);
+        x += 140.f;
+    }
+}
+
+void TurnController::enterResurrectionTargetMode()
+{
+    targetBtns.clear(); targetLbls.clear(); otherPlayers.clear();
+    float x = 20.f, y = 80.f + 60.f;
+    for (auto* p : game.getPlayers()) {
+        if (p == game.getCurrentTurn() || !p->getStatus().canBeResurrected) continue;
         otherPlayers.push_back(p);
         sf::RectangleShape b({120.f,40.f}); b.setPosition(x,y); b.setFillColor({200,80,80});
         targetBtns.push_back(b);
