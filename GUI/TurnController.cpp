@@ -270,6 +270,7 @@ void TurnController::updateStatusLabels()
                << p->getName() << "\n"
                << p->getClassName() << "\n"
                << (p->getStatus().isAlive ? "Alive" : "Dead") << "\n";
+            //ss << "Coins: " << p->getCoins() << "\n"; // for debugging purposes
             if(!peekTargets.empty() && std::find(peekTargets.begin(), peekTargets.end(), p) != peekTargets.end())
                 ss << "Coins: " << p->getCoins() << "\n";
             if (p->getStatus().isSanctioned)        // adjust if you have multiple effect types

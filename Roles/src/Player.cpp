@@ -48,6 +48,18 @@ bool Player::arrest(Player& player)
 
 bool Player::sanction(Player& player)
 {
+    if(player.getClassName() == "Judge")
+    {
+        if(this->coins >= 4)
+        {
+            player.status.isSanctioned = true;
+            this->coins -= 4;
+            return true;
+        }
+        else
+            return false;
+    }
+
     if(this->coins >= 3)
     {
         player.status.isSanctioned = true;
