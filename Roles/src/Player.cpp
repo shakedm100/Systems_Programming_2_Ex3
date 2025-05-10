@@ -108,6 +108,16 @@ void Player::invest()
     throw NotImplementedException("Not a Baron");
 }
 
+void Player::investSuccess()
+{
+    throw NotImplementedException("Not a Baron");
+}
+
+void Player::investFailure()
+{
+    throw NotImplementedException("Not a Baron");
+}
+
 void Player::preventCoup()
 {
     throw NotImplementedException("Not a General");
@@ -149,7 +159,7 @@ void Player::clearStatusEffects()
     status.canTax = true;
     status.isArrested = false;
     status.isSanctioned = false;
-    status.isInvested = false;
+    status.holdTurn = false;
 }
 
 std::ostream& operator<<(std::ostream& os, const Player& player) {

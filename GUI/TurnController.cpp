@@ -116,8 +116,8 @@ void TurnController::update()
     {
         case Phase::StartTurn:
             setupForCurrentPlayer();
-        phase = Phase::ChooseAction;
-        break;
+            phase = Phase::ChooseAction;
+            break;
         case Phase::ResolveAction:
             applyPending();
         if (game.checkWinner())
@@ -131,9 +131,7 @@ void TurnController::update()
             phase = Phase::EndTurn;
         break;
         case Phase::EndTurn:
-            game.getCurrentTurn()->clearStatusEffects();
-            peekTargets.clear();
-            game.nextTurn();
+            finishTurn();
         phase = Phase::StartTurn;
         break;
         default:
@@ -187,7 +185,6 @@ void TurnController::setupForCurrentPlayer()
     auto* p = game.getCurrentTurn();
     currentPlayer.setString(p->getName() + "'s Turn");
     roleLabel.setString("Role: " + game.getCurrentTurn()->getClassName());
-    coinLabel.setString("Coins: " + std::to_string(p->getCoins()));
 
     auto tb = currentPlayer.getLocalBounds();
     currentPlayer.setOrigin(tb.left + tb.width, tb.top + tb.height);
@@ -207,24 +204,44 @@ void TurnController::setupForCurrentPlayer()
         specialActions.push_back("Peek");
         specialActions.push_back("Prevent Arrest");
     }
+    else if(role == "Baron")
+    {
+        specialActions.push_back("Invest");
+        if(!game.getCurrentTurn()->getStatus().holdTurn)
+        {
+            if(game.getCurrentTurn()->getStatus().isInvested)
+            {
+                game.getCurrentTurn()->investSuccess();
+            }
+        }
+    }
+
+    coinLabel.setString("Coins: " + std::to_string(p->getCoins()));
 
 
     // Lay them out down the left side:
     float sx = 20.f;
-    float sy = wnd.getSize().y - 80.f;    // start ~80px up from bottom
+    float sy = wnd.getSize().y / 1.3f;    // start ~80px up from bottom
     for (auto& name : specialActions) {
-        sf::RectangleShape b({140.f, 36.f});
+        sf::RectangleShape b({200.f, 50.f});
         b.setPosition(sx, sy);
-        b.setFillColor({180,50,50});
+        b.setFillColor({50,180,50});
         specialBtns.push_back(b);
 
-        sf::Text lbl(name, font, 20);
+        sf::Text lbl(name, font, 30);
         lbl.setFillColor(sf::Color::White);
         centerTextIn(b, lbl);
         specialLabels.push_back(lbl);
 
-        sy -= 50.f;  // stack upward
+        sy -= 70.f;  // stack upward
     }
+}
+
+void TurnController::finishTurn()
+{
+    game.getCurrentTurn()->clearStatusEffects();
+    peekTargets.clear();
+    game.nextTurn();
 }
 
 void TurnController::updateStatusLabels()

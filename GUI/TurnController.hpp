@@ -65,6 +65,7 @@ public:
 
 private:
     void setupForCurrentPlayer();
+    void finishTurn();
     void applyPending();
     void enterTargetMode();
     void clearUI();

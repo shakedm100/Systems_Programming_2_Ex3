@@ -78,7 +78,8 @@ std::vector<string> Game::getActionNames()
 
 bool Game::actionNeedsTarget(string action)
 {
-    if(action == "Gather" || action == "Tax" || action == "Bribe" || action == "Skip")
+    if(action == "Gather" || action == "Tax" || action == "Bribe" || action == "Skip" ||
+        action == "Invest")
         return false;
     if (action == "Arrest"   || action == "Sanction" || action == "Coup" || action == "Prevent Tax" ||
         action == "Peek" || "Prevent Arrest")
@@ -107,6 +108,14 @@ std::string Game::whyCannotPerform(Player* actor, const std::string& action, Pla
         if (action == "Bribe") {
             if (actor->getCoins() < 4)
                 return "you need at least 4 coins to bribe";
+            return "";
+        }
+        if(action == "Invest")
+        {
+            if(actor->getClassName() != "Baron")
+                return "Actor is not a baron";
+            if(actor->getCoins() < 3)
+                return "you need at least 3 coins to invest";
             return "";
         }
     } else {
@@ -146,12 +155,16 @@ std::string Game::whyCannotPerform(Player* actor, const std::string& action, Pla
         }
         if(action == "Peek")
         {
+            if(actor->getClassName() != "Spy")
+                return "Actor is not a spy";
             return "";
         }
         if(action == "Prevent Arrest")
         {
             if(!pendingTarget->getStatus().canArrest)
                 return pendingTarget->getName() + " can't arrest already";
+            if(actor->getClassName() != "Spy")
+                return "Actor is not a spy";
             return "";
         }
     }
@@ -179,13 +192,19 @@ void Game::perform(Player *actor, string action, Player *pendingTarget)
             actor->tax();
         else if(action == "Bribe")
             actor->bribe();
+        else if(action == "Invest")
+            actor->invest();
     }
     else
     {
         if(action == "Arrest")
             actor->arrest(*pendingTarget);
         else if(action == "Sanction")
+        {
             actor->sanction(*pendingTarget);
+            if(pendingTarget->getStatus().isInvested)
+                pendingTarget->investFailure();
+        }
         else if(action == "Coup")
         {
             actor->coup(*pendingTarget);

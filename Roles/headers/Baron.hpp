@@ -4,12 +4,12 @@
 class Baron : public Player
 {
 private:
-    bool invested;
 
 public:
-    explicit Baron(const string& name) : Player(name), invested(false) {}
+    explicit Baron(const string& name) : Player(name) {}
 
     void invest() override;
-    bool getInvested();
     string getClassName() override;
+    void investSuccess() override;
+    void investFailure() override;
 };
