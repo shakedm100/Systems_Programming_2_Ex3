@@ -50,11 +50,21 @@ void Game::nextTurn()
         if(current_turn == alivePlayers[i] && i != alivePlayers.size() - 1)
         {
             current_turn = alivePlayers[i+1];
+            if(current_turn->getStatus().selfRescue)
+            {
+                current_turn->setStatus().selfRescue = false;
+                alivePlayers.erase(alivePlayers.begin() + i);
+            }
             return;
         }
         else if(current_turn == alivePlayers[i] && i == alivePlayers.size() - 1)
         {
             current_turn = alivePlayers[0];
+            if(current_turn->getStatus().selfRescue)
+            {
+                current_turn->setStatus().selfRescue = false;
+                alivePlayers.erase(alivePlayers.begin() + i);
+            }
             return;
         }
     }
@@ -218,12 +228,18 @@ void Game::perform(Player *actor, string action, Player *pendingTarget)
         else if(action == "Coup")
         {
             actor->coup(*pendingTarget);
-            for(int i = 0; i < alivePlayers.size(); i++)
+
+            if(pendingTarget->getClassName() == "General" && pendingTarget->getCoins() >= 5)
+                pendingTarget->setStatus().canBeResurrected = true;
+            else
             {
-                if(alivePlayers[i] == pendingTarget)
+                for(int i = 0; i < alivePlayers.size(); i++)
                 {
-                    alivePlayers.erase(alivePlayers.begin() + i);
-                    return;
+                    if(alivePlayers[i] == pendingTarget)
+                    {
+                        alivePlayers.erase(alivePlayers.begin() + i);
+                        return;
+                    }
                 }
             }
         }
@@ -236,7 +252,8 @@ void Game::perform(Player *actor, string action, Player *pendingTarget)
         if(action == "Reverse Coup")
         {
             actor->reverseCoup(*pendingTarget);
-            alivePlayers.push_back(pendingTarget);
+            if(alivePlayers.size() < players.size())
+                alivePlayers.push_back(pendingTarget);
         }
     }
 }

@@ -13,9 +13,10 @@ struct Status
     bool canBeResurrected;
     bool isInvested;
     bool holdTurn; // Helper bool
+    bool selfRescue;
 
     Status() : isSanctioned(false), isArrested(false), canArrest(true), isAlive(true),
-    canTax(true), canBeResurrected(false) ,isInvested(false), holdTurn(false){};
+    canTax(true), canBeResurrected(false) ,isInvested(false), holdTurn(false), selfRescue(false){};
 };
 
 class Player

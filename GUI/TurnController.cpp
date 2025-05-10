@@ -353,7 +353,7 @@ void TurnController::enterResurrectionTargetMode()
     targetBtns.clear(); targetLbls.clear(); otherPlayers.clear();
     float x = 20.f, y = 80.f + 60.f;
     for (auto* p : game.getPlayers()) {
-        if (p == game.getCurrentTurn() || !p->getStatus().canBeResurrected) continue;
+        if (!p->getStatus().canBeResurrected && !p->getStatus().selfRescue) continue;
         otherPlayers.push_back(p);
         sf::RectangleShape b({120.f,40.f}); b.setPosition(x,y); b.setFillColor({200,80,80});
         targetBtns.push_back(b);
