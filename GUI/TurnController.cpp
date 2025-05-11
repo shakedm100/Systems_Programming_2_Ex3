@@ -219,9 +219,17 @@ void TurnController::update()
             }
             break;
         case Phase::EndTurn:
-            finishTurn();
-        phase = Phase::StartTurn;
-        break;
+            if (game.getCurrentTurn()->getExtraTurns() > 0)
+            {
+                game.getCurrentTurn()->decreaseExtraTurns();
+                phase = Phase::StartTurn;
+            }
+            else
+            {
+               finishTurn();
+               phase = Phase::StartTurn;
+            }
+            break;
         default:
             break;
     }
