@@ -1,6 +1,11 @@
 #include "TurnController.hpp"
 #include <sstream>
 
+//TODO: Consider changing Peek() to show all coins
+//TODO: Add comments to methods
+//TODO: Add my name to every file
+//TODO: Migrate to vscode and Make
+//TODO: Add tests
 TurnController::TurnController(Game& game, sf::Font& font, sf::RenderWindow& wnd)
             : game(game), font(font), wnd(wnd)
 {
@@ -139,16 +144,10 @@ void TurnController::handleClick(const sf::Event& evt)
     {
         case Phase::ChooseAction:
             for (size_t i = 0; i < specialBtns.size(); ++i) {
-                if (specialBtns[i].getGlobalBounds().contains(m)) {
+                if (specialBtns[i].getGlobalBounds().contains(m))
+                {
                     pendingAction = specialActions[i];
-                    // role‐specific actions might or might not need a target:
-                    if (game.actionNeedsTarget(pendingAction))
-                    {;
-                        enterTargetMode();
-                        phase = Phase::ChooseTarget;
-                    } else {
-                        phase = Phase::ResolveAction;
-                    }
+                    phase = Phase::ResolveAction;
                     return;
                 }
             }
@@ -285,7 +284,6 @@ void TurnController::render()
     }
 }
 
-// helpers
 void TurnController::setupForCurrentPlayer()
 {
     clearUI();
@@ -367,7 +365,7 @@ void TurnController::updateStatusLabels()
                << p->getName() << "\n"
                << p->getClassName() << "\n"
                << (p->getStatus().isAlive ? "Alive" : "Dead") << "\n";
-            ss << "Coins: " << p->getCoins() << "\n"; // for debugging purposes
+            //ss << "Coins: " << p->getCoins() << "\n"; // for debugging purposes
             if(!peekTargets.empty() && std::find(peekTargets.begin(), peekTargets.end(), p) != peekTargets.end())
                 ss << "Coins: " << p->getCoins() << "\n";
             if (p->getStatus().isSanctioned)        // adjust if you have multiple effect types
