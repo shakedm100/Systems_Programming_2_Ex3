@@ -224,14 +224,8 @@ void Game::perform(Player *actor, string action, Player *pendingTarget)
         else if(action == "Coup")
         {
             actor->coup(*pendingTarget);
-
-            if(pendingTarget->getClassName() == "General" && pendingTarget->getCoins() >= 5)
-                pendingTarget->setStatus().canBeResurrected = true;
-            else
-            {
-                int i = indexOf(pendingTarget);
-                alivePlayers.erase(alivePlayers.begin() + i);
-            }
+            int i = indexOf(pendingTarget);
+            alivePlayers.erase(alivePlayers.begin() + i);
         }
         if(action == "Peek")
             actor->peek(*pendingTarget);
@@ -264,7 +258,12 @@ void Game::setupPendingReverse(Player* actor, const std::string& action, Player*
         hasPending = false;
         return; // not reversible
     }
+
     indexBeforeReaction = currentIndex;
+
+    if(target != nullptr && target->getClassName() == "General" && action == "Coup" && target->getCoins() >= 5) //Temporary add him to give the option
+        alivePlayers.push_back(target);
+
 
     PendingReverse rev{ action, actor, target, {}, 0 };
     for (size_t i = 0; i < alivePlayers.size(); ++i) {
@@ -277,6 +276,10 @@ void Game::setupPendingReverse(Player* actor, const std::string& action, Player*
         hasPending = false;
         return;
     }
+
+    if(target != nullptr && target->getClassName() == "General" && action == "Coup") // Erase him because he isn't really alive
+        alivePlayers.erase(find(alivePlayers.begin(), alivePlayers.end(), target));
+
     pending = rev;
     hasPending = true;
     currentIndex = indexOf(pending.responders[0]);
