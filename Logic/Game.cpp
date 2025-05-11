@@ -56,21 +56,11 @@ void Game::nextTurn()
         if(current_turn == alivePlayers[i] && i != alivePlayers.size() - 1)
         {
             current_turn = alivePlayers[i+1];
-            if(current_turn->getStatus().selfRescue)
-            {
-                current_turn->setStatus().selfRescue = false;
-                alivePlayers.erase(alivePlayers.begin() + i);
-            }
             break;
         }
         else if(current_turn == alivePlayers[i] && i == alivePlayers.size() - 1)
         {
             current_turn = alivePlayers[0];
-            if(current_turn->getStatus().selfRescue)
-            {
-                current_turn->setStatus().selfRescue = false;
-                alivePlayers.erase(alivePlayers.begin() + i);
-            }
             break; //Not necessary here
         }
     }
@@ -99,8 +89,8 @@ std::string Game::getPendingActionLabel()
 {
     if(pending.actionLabel == "Tax")
         return "Prevent Tax";
-    else if(pending.actionLabel == "Bribe")
-        return "Reverse Bribe";
+    /*else if(pending.actionLabel == "Bribe")
+        return "Reverse Bribe"; TODO: Return here*/
     else if(pending.actionLabel == "Arrest")
         return "Prevent Arrest";
     else if(pending.actionLabel == "Sanction")
@@ -153,10 +143,6 @@ std::string Game::whyCannotPerform(Player* actor, const std::string& action, Pla
         }
     } else {
         if (action == "Arrest") {
-            if (!actor->getStatus().canArrest)
-                return "you cannot perform arrests";
-            if (pendingTarget->getStatus().isArrested)
-                return pendingTarget->getName() + " is already arrested";
             if (pendingTarget->getCoins() == 0)
                 return pendingTarget->getName() + " has no coins to seize";
             if(pendingTarget->getClassName() == "Merchant" && pendingTarget->getCoins() < 2)

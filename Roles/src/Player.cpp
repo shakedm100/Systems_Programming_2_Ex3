@@ -42,7 +42,7 @@ bool Player::arrest(Player& player)
         return true;
     }
 
-    if(player.coins > 0 && !player.status.isArrested)
+    if(player.coins > 0)
     {
         player.coins--;
         this->coins++;
@@ -81,7 +81,6 @@ bool Player::coup(Player& player) const
     if(this->coins >= 7)
     {
         player.status.isAlive = false;
-        player.setStatus().canBeResurrected = true;
         return true;
     }
     return false;
@@ -95,16 +94,6 @@ int Player::getCoins() const
 int & Player::setCoins()
 {
     return coins;
-}
-
-bool Player::getCanArrest() const
-{
-    return status.canArrest;
-}
-
-bool &Player::setCanArrest()
-{
-    return status.canArrest;
 }
 
 string Player::getName() const
@@ -184,8 +173,6 @@ void Player::increaseExtraTurns()
 
 void Player::clearStatusEffects()
 {
-    status.canArrest = true;
-    status.isArrested = false;
     status.isSanctioned = false;
     status.holdTurn = false;
 }

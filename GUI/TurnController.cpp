@@ -353,8 +353,6 @@ void TurnController::updateStatusLabels()
                 ss << "Coins: " << p->getCoins() << "\n";
             if (p->getStatus().isSanctioned)        // adjust if you have multiple effect types
                 ss << "[Sanctioned]";
-            if(!p->getStatus().canArrest)
-                ss << " [Can't Arrest]";
             if(p->getStatus().isInvested)
                 ss << " [Invested]";
             ss << "\n-------------------------\n";
@@ -417,23 +415,6 @@ void TurnController::enterTargetMode()
     float x = 20.f, y = 80.f + 60.f;
     for (auto* p : game.getAlivePlayers()) {
         if (p == game.getCurrentTurn()) continue;
-        otherPlayers.push_back(p);
-        sf::RectangleShape b({120.f,40.f}); b.setPosition(x,y); b.setFillColor({200,80,80});
-        targetBtns.push_back(b);
-        sf::Text t(p->getName(), font, 18);
-        t.setFillColor(sf::Color::White);
-        centerTextIn(b, t);
-        targetLbls.push_back(t);
-        x += 140.f;
-    }
-}
-
-void TurnController::enterResurrectionTargetMode()
-{
-    targetBtns.clear(); targetLbls.clear(); otherPlayers.clear();
-    float x = 20.f, y = 80.f + 60.f;
-    for (auto* p : game.getPlayers()) {
-        if (!p->getStatus().canBeResurrected && !p->getStatus().selfRescue) continue;
         otherPlayers.push_back(p);
         sf::RectangleShape b({120.f,40.f}); b.setPosition(x,y); b.setFillColor({200,80,80});
         targetBtns.push_back(b);

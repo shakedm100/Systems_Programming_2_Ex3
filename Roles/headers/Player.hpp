@@ -6,16 +6,12 @@ using namespace std;
 struct Status
 {
     bool isSanctioned;
-    bool isArrested;
-    bool canArrest;
     bool isAlive;
-    bool canBeResurrected;
     bool isInvested;
     bool holdTurn; // Helper bool
-    bool selfRescue;
 
-    Status() : isSanctioned(false), isArrested(false), canArrest(true), isAlive(true),
-    canBeResurrected(false) ,isInvested(false), holdTurn(false), selfRescue(false){};
+    Status() : isSanctioned(false), isAlive(true),
+    isInvested(false), holdTurn(false){};
 };
 
 class Player
