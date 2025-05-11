@@ -1,6 +1,6 @@
 #include "Game.hpp"
 #include <iostream>
-
+#include <algorithm>
 #include "../Exceptions/IllegalMoveException.hpp"
 #include "../Exceptions/NoWinnerException.hpp"
 
@@ -43,8 +43,14 @@ Player* Game::getCurrentTurn() const
     return current_turn;
 }
 
+void Game::rotateToNextPlayer()
+{
+    currentIndex = (currentIndex + 1) % alivePlayers.size();
+}
+
 void Game::nextTurn()
 {
+    rotateToNextPlayer();
     for(int i = 0; i < alivePlayers.size(); i++)
     {
         if(current_turn == alivePlayers[i] && i != alivePlayers.size() - 1)
@@ -87,6 +93,22 @@ std::vector<string> Game::getActionNames()
 {
     std::vector<string> actions = {"Gather", "Tax", "Bribe", "Arrest", "Sanction", "Coup", "Skip"};
     return actions;
+}
+
+std::string Game::getPendingActionLabel()
+{
+    if(pending.actionLabel == "Tax")
+        return "Prevent Tax";
+    else if(pending.actionLabel == "Bribe")
+        return "Reverse Bribe";
+    else if(pending.actionLabel == "Arrest")
+        return "Prevent Arrest";
+    else if(pending.actionLabel == "Sanction")
+        return "Prevent Sanction";
+    else if(pending.actionLabel == "Coup")
+        return "Reverse Coup";
+    else
+        return "";
 }
 
 bool Game::actionNeedsTarget(string action)
@@ -248,18 +270,8 @@ void Game::perform(Player *actor, string action, Player *pendingTarget)
                 }
             }
         }
-        if(action == "Prevent Tax")
-            actor->abortTax(*pendingTarget);
         if(action == "Peek")
             actor->peek(*pendingTarget);
-        if(action == "Prevent Arrest")
-            actor->blockArrest(*pendingTarget);
-        if(action == "Reverse Coup")
-        {
-            actor->reverseCoup(*pendingTarget);
-            if(alivePlayers.size() < players.size())
-                alivePlayers.push_back(pendingTarget);
-        }
     }
 }
 
@@ -267,3 +279,87 @@ std::vector<Player*> Game::getAlivePlayers()
 {
     return alivePlayers;
 }
+
+size_t Game::indexOf(Player* p) const
+{
+    return std::distance(alivePlayers.begin(),std::find(alivePlayers.begin(), alivePlayers.end(), p));
+}
+
+
+void Game::setupPendingReverse(Player* actor, const std::string& action, Player* target) {
+    // determine reverser role via if/else
+    std::string reverserRole;
+    if (action == "Tax") {
+        reverserRole = "Governor";
+    } else if (action == "Arrest") {
+        reverserRole = "Spy";
+    } else if (action == "Coup") {
+        reverserRole = "General";
+    } else if (action == "Bribe") {
+        reverserRole = "Judge";
+    } else {
+        hasPending = false;
+        return; // not reversible
+    }
+    indexBeforeReaction = currentIndex;
+
+    PendingReverse rev{ action, actor, target, {}, 0 };
+    for (size_t i = 0; i < alivePlayers.size(); ++i) {
+        Player* p = alivePlayers[(currentIndex + 1 + i) % alivePlayers.size()];
+        if (p != actor && p->getClassName() == reverserRole) {
+            rev.responders.push_back(p);
+        }
+    }
+    if (rev.responders.empty()) {
+        hasPending = false;
+        return;
+    }
+    pending = rev;
+    hasPending = true;
+    currentIndex = indexOf(pending.responders[0]);
+    current_turn = alivePlayers[currentIndex];
+}
+
+bool Game::hasPendingReverse() const { return hasPending; }
+
+
+bool Game::advancePendingResponder()
+{
+    if (!hasPending) return false;
+    ++pending.nextResponder;
+    if (pending.nextResponder < pending.responders.size()) {
+        currentIndex = indexOf(pending.responders[pending.nextResponder]);
+        current_turn = alivePlayers[currentIndex];
+        return true;
+    }
+    return false;
+}
+
+void Game::clearPendingReverse()
+{
+    if (!hasPending) return;
+    // reset pending state
+    pending = PendingReverse();
+    hasPending = false;
+    // restore to exactly the actor’s index before reaction
+    currentIndex = indexBeforeReaction;
+    current_turn = alivePlayers[currentIndex];
+}
+
+void Game::performPendingReverse(std::string &reverseAction)
+{
+    if(reverseAction == "Prevent Tax")
+        current_turn->abortTax(*pending.actor);
+    if(reverseAction == "Prevent Arrest")
+    {
+        current_turn->blockArrest(*pending.actor);
+        pending.target->setCoins()++;
+    }
+    if(reverseAction == "Reverse Coup")
+    {
+        current_turn->reverseCoup(*pending.actor);
+        if(alivePlayers.size() < players.size())
+            alivePlayers.push_back(pending.actor);
+    }
+}
+

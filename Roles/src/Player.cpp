@@ -92,6 +92,11 @@ int Player::getCoins() const
     return coins;
 }
 
+int & Player::setCoins()
+{
+    return coins;
+}
+
 bool Player::getCanArrest() const
 {
     return status.canArrest;

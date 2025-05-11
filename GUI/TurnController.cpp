@@ -52,11 +52,83 @@ TurnController::TurnController(Game& game, sf::Font& font, sf::RenderWindow& wnd
         lbl.setFillColor(sf::Color::White);
     }
 
+    reactionTitle.setFont(font);
+    reactionTitle.setString("Reaction Time");
+    reactionTitle.setCharacterSize(48);
+    reactionTitle.setFillColor(sf::Color::Yellow);
+    // center top
+    sf::FloatRect rt = reactionTitle.getLocalBounds();
+    reactionTitle.setOrigin(rt.width/2, rt.height/2);
+    reactionTitle.setPosition(wnd.getSize().x/2.f, 50.f);
+
+    // Reverse button
+    btnReverse.setSize({200.f, 60.f});
+    btnReverse.setPosition(
+        wnd.getSize().x/2.f - btnReverse.getSize().x - 10.f,
+        wnd.getSize().y/2.f - btnReverse.getSize().y/2.f
+    );
+    btnReverse.setFillColor({200,200,50});
+    btnReverse.setOutlineColor({100,100,20});
+    btnReverse.setOutlineThickness(4.f);
+
+    lblReverse.setFont(font);
+    lblReverse.setString("Reverse");
+    lblReverse.setCharacterSize(24);
+    lblReverse.setFillColor(sf::Color::Black);
+    centerLabel(lblReverse, btnReverse);
+
+    // Pass button
+    btnPass.setSize({200.f, 60.f});
+    btnPass.setPosition(
+        wnd.getSize().x/2.f + 10.f,
+        wnd.getSize().y/2.f - btnPass.getSize().y/2.f
+    );
+    btnPass.setFillColor({200,200,50});
+    btnPass.setOutlineColor({100,100,20});
+    btnPass.setOutlineThickness(4.f);
+
+    lblPass.setFont(font);
+    lblPass.setString("Pass");
+    lblPass.setCharacterSize(24);
+    lblPass.setFillColor(sf::Color::Black);
+    centerLabel(lblPass, btnPass);
+
     phase = Phase::StartTurn;
+}
+
+void TurnController::centerLabel(sf::Text& label, const sf::RectangleShape& button)
+{
+    auto bounds = label.getLocalBounds();
+    label.setOrigin(bounds.left + bounds.width/2.f,
+                    bounds.top  + bounds.height/2.f);
+    sf::Vector2f pos = button.getPosition();
+    sf::Vector2f size = button.getSize();
+    label.setPosition(pos + size * 0.5f);
 }
 
 void TurnController::handleClick(const sf::Event& evt)
 {
+    if (phase == Phase::ReactionTime && evt.type == sf::Event::MouseButtonPressed && evt.mouseButton.button == sf::Mouse::Left)
+    {
+        sf::Vector2f m(evt.mouseButton.x, evt.mouseButton.y);
+        if (btnReverse.getGlobalBounds().contains(m)) {
+            performPendingReverseUI(lblReverse.getString());
+            game.clearPendingReverse();
+            hideReactionUI();
+            phase = Phase::EndTurn;
+        }
+        else if (btnPass.getGlobalBounds().contains(m)) {
+            if (game.advancePendingResponder()) {
+                showReactionUI();
+            } else {
+                game.clearPendingReverse();
+                hideReactionUI();  // Also hide overlay
+                phase = Phase::EndTurn;
+            }
+        }
+        return;
+    }
+
     if (evt.type != sf::Event::MouseButtonPressed || evt.mouseButton.button != sf::Mouse::Left)
         return;
     sf::Vector2f m(evt.mouseButton.x, evt.mouseButton.y);
@@ -131,6 +203,10 @@ void TurnController::update()
             game.getCurrentTurn()->decreaseExtraTurns();
             phase = Phase::StartTurn;
         }
+        else if (game.hasPendingReverse()) {
+            phase = Phase::ReactionTime;
+            showReactionUI();
+        }
         else
             phase = Phase::EndTurn;
         break;
@@ -151,6 +227,18 @@ void TurnController::render()
     // draw only; clearing&display done in main
     if (phase==Phase::GameOver)
         wnd.draw(gameOverLabel);
+    else if (phase == Phase::ReactionTime)
+    {
+        wnd.draw(reactionTitle);
+        wnd.draw(btnReverse);
+        wnd.draw(lblReverse);
+        wnd.draw(btnPass);
+        wnd.draw(lblPass);
+        wnd.draw(currentPlayer);
+        wnd.draw(roleLabel);
+        wnd.draw(coinLabel);
+        updateStatusLabels();
+    }
     else
     {
         updateStatusLabels();
@@ -270,7 +358,7 @@ void TurnController::updateStatusLabels()
                << p->getName() << "\n"
                << p->getClassName() << "\n"
                << (p->getStatus().isAlive ? "Alive" : "Dead") << "\n";
-            //ss << "Coins: " << p->getCoins() << "\n"; // for debugging purposes
+            ss << "Coins: " << p->getCoins() << "\n"; // for debugging purposes
             if(!peekTargets.empty() && std::find(peekTargets.begin(), peekTargets.end(), p) != peekTargets.end())
                 ss << "Coins: " << p->getCoins() << "\n";
             if (p->getStatus().isSanctioned)        // adjust if you have multiple effect types
@@ -310,6 +398,7 @@ void TurnController::applyPending() {
                 peekTargets.push_back(pendingTarget);
                 phase           = Phase::ChooseAction;
             }
+            game.setupPendingReverse(actor, pendingAction, pendingTarget);
             pendingTarget = nullptr;
         }
     }
@@ -334,7 +423,9 @@ void TurnController::showError(const std::string& msg)
 
 void TurnController::enterTargetMode()
 {
-    targetBtns.clear(); targetLbls.clear(); otherPlayers.clear();
+    targetBtns.clear();
+    targetLbls.clear();
+    otherPlayers.clear();
     float x = 20.f, y = 80.f + 60.f;
     for (auto* p : game.getAlivePlayers()) {
         if (p == game.getCurrentTurn()) continue;
@@ -407,4 +498,29 @@ void TurnController::finishGame() {
     // place at window center
     gameOverLabel.setPosition(wnd.getSize().x/2.f, wnd.getSize().y/2.f);
     phase = Phase::GameOver;
+}
+
+void TurnController::showReactionUI()
+{
+    reactionActive = true;
+    // set reverse label
+    std::string act = game.getPendingActionLabel();
+    std::string text = act;
+    lblReverse.setString(text);
+    centerLabel(lblReverse, btnReverse);
+
+    currentPlayer.setString(game.getCurrentTurn()->getName() + "'s Turn");
+    roleLabel.setString("Role: " + game.getCurrentTurn()->getClassName());
+    coinLabel.setString("Coins: " + std::to_string(game.getCurrentTurn()->getCoins()));
+}
+
+void TurnController::hideReactionUI()
+{
+    // hide the reaction UI overlay
+    reactionActive = false;
+}
+
+void TurnController::performPendingReverseUI(std::string reverseAction)
+{
+    game.performPendingReverse(reverseAction);
 }

@@ -1,4 +1,4 @@
-#include "GameSetup.hpp"
+#include "GameUtil.hpp"
 #include "../Roles/headers/Governor.hpp"
 #include "../Roles/headers/Spy.hpp"
 #include "../Roles/headers/Baron.hpp"

@@ -10,6 +10,7 @@ enum class Phase
     StartTurn,    // initialize UI for new player
     ChooseAction, // pick an action button
     ChooseTarget, // pick a target for actions that require one
+    ReactionTime,
     ResolveAction,// apply the chosen action
     EndTurn,       // advance to next player
     GameOver        // Finish the game
@@ -52,6 +53,14 @@ private:
     sf::Text gameOverLabel;
     std::vector<sf::Text> playerStatusLabels;
 
+    // ReactionTime UI elements
+    bool reactionActive = false;
+    sf::Text          reactionTitle;
+    sf::RectangleShape btnReverse;
+    sf::Text          lblReverse;
+    sf::RectangleShape btnPass;
+    sf::Text          lblPass;
+
     // error handling
     sf::Clock   errorClock;
     bool        errorActive = false;
@@ -75,6 +84,10 @@ private:
     void finishGame();
     void updateStatusLabels();
     void showError(const std::string& msg);
+    void showReactionUI();
+    void hideReactionUI();
+    void performPendingReverseUI(std::string reverseAction);
+    void centerLabel(sf::Text& label, const sf::RectangleShape& button);
 
 };
 

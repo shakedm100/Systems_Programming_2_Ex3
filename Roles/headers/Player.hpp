@@ -39,6 +39,7 @@ public:
     bool sanction(Player& player);
     bool coup(Player& player) const;
     int getCoins() const;
+    int& setCoins();
     bool getCanArrest() const;
     bool& setCanArrest();
     string getName() const;

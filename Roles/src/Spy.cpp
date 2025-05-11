@@ -8,8 +8,7 @@ int Spy::peek(Player& role)
 
 void Spy::blockArrest(Player& role)
 {
-    extraTurns++;
-    role.setCanArrest() = false;
+    role.setCoins() -= 1;
 }
 
 string Spy::getClassName()

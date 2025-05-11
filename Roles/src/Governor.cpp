@@ -14,7 +14,7 @@ bool Governor::tax()
 
 void Governor::abortTax(Player &player)
 {
-    player.setStatus().canTax = false;
+    player.setCoins() -= 2;
 }
 
 string Governor::getClassName()
