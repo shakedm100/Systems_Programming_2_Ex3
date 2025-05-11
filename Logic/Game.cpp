@@ -134,8 +134,6 @@ std::string Game::whyCannotPerform(Player* actor, const std::string& action, Pla
             return "";  // OK
         }
         if (action == "Tax") {
-            if (!actor->getStatus().canTax)
-                return "you do not have the tax privilege";
             if (actor->getStatus().isSanctioned)
                 return "you are currently sanctioned";
             return "";
@@ -179,39 +177,10 @@ std::string Game::whyCannotPerform(Player* actor, const std::string& action, Pla
                 return pendingTarget->getName() + " is already out of the game";
             return "";
         }
-        if(action == "Prevent Tax")
-        {
-            if(!pendingTarget->getStatus().canTax)
-                return "Target already can't tax";
-            else if(actor->getClassName() != "Governor")
-                return "Actor is not a governor";
-            else
-            {
-                return "";
-            }
-        }
         if(action == "Peek")
         {
             if(actor->getClassName() != "Spy")
                 return "Actor is not a spy";
-            return "";
-        }
-        if(action == "Prevent Arrest")
-        {
-            if(!pendingTarget->getStatus().canArrest)
-                return pendingTarget->getName() + " can't arrest already";
-            if(actor->getClassName() != "Spy")
-                return "Actor is not a spy";
-            return "";
-        }
-        if(action == "Reverse Coup")
-        {
-            if(pendingTarget->getStatus().isAlive)
-                return pendingTarget->getName() + " is still alive";
-            if(!pendingTarget->getStatus().canBeResurrected)
-                return pendingTarget->getName() + " can't be resurrected anymore";
-            if(actor->getCoins() < 5)
-                return "You need at least 5 coins to reverse coup";
             return "";
         }
     }
@@ -260,14 +229,8 @@ void Game::perform(Player *actor, string action, Player *pendingTarget)
                 pendingTarget->setStatus().canBeResurrected = true;
             else
             {
-                for(int i = 0; i < alivePlayers.size(); i++)
-                {
-                    if(alivePlayers[i] == pendingTarget)
-                    {
-                        alivePlayers.erase(alivePlayers.begin() + i);
-                        return;
-                    }
-                }
+                int i = indexOf(pendingTarget);
+                alivePlayers.erase(alivePlayers.begin() + i);
             }
         }
         if(action == "Peek")
@@ -357,9 +320,8 @@ void Game::performPendingReverse(std::string &reverseAction)
     }
     if(reverseAction == "Reverse Coup")
     {
-        current_turn->reverseCoup(*pending.actor);
-        if(alivePlayers.size() < players.size())
-            alivePlayers.push_back(pending.actor);
+        current_turn->reverseCoup(*pending.target);
+        alivePlayers.push_back(pending.target);
     }
 }
 

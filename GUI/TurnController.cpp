@@ -140,11 +140,8 @@ void TurnController::handleClick(const sf::Event& evt)
                     pendingAction = specialActions[i];
                     // role‐specific actions might or might not need a target:
                     if (game.actionNeedsTarget(pendingAction))
-                    {
-                        if(pendingAction == "Reverse Coup")
-                            enterResurrectionTargetMode();
-                        else
-                            enterTargetMode();
+                    {;
+                        enterTargetMode();
                         phase = Phase::ChooseTarget;
                     } else {
                         phase = Phase::ResolveAction;
@@ -289,12 +286,9 @@ void TurnController::setupForCurrentPlayer()
     roleLabel.setPosition(wnd.getSize().x/2.f, wnd.getSize().y - marginY2);
 
     auto role = p->getClassName();
-    if (role == "Governor") {
-        specialActions.push_back("Prevent Tax");
-    }
-    else if (role == "Spy") {
+
+    if (role == "Spy") {
         specialActions.push_back("Peek");
-        specialActions.push_back("Prevent Arrest");
     }
     else if(role == "Baron")
     {
@@ -306,10 +300,6 @@ void TurnController::setupForCurrentPlayer()
                 game.getCurrentTurn()->investSuccess();
             }
         }
-    }
-    else if(role == "General")
-    {
-        specialActions.push_back("Reverse Coup");
     }
 
     coinLabel.setString("Coins: " + std::to_string(p->getCoins()));
@@ -367,8 +357,6 @@ void TurnController::updateStatusLabels()
                 ss << " [Can't Arrest]";
             if(p->getStatus().isInvested)
                 ss << " [Invested]";
-            if(!p->getStatus().canTax)
-                ss << " [Can't Tax]";
             ss << "\n-------------------------\n";
             lbl.setString(ss.str());
 

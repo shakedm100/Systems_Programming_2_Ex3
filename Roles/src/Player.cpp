@@ -185,7 +185,6 @@ void Player::increaseExtraTurns()
 void Player::clearStatusEffects()
 {
     status.canArrest = true;
-    status.canTax = true;
     status.isArrested = false;
     status.isSanctioned = false;
     status.holdTurn = false;

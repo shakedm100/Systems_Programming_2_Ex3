@@ -7,10 +7,9 @@ string General::getClassName()
 
 void General::reverseCoup(Player &save)
 {
-    if(save.getStatus().canBeResurrected)
+    if(!save.getStatus().isAlive)
     {
         save.setStatus().isAlive = true;
-        save.setStatus().canBeResurrected = false;
         coins -= 5;
     }
 }
