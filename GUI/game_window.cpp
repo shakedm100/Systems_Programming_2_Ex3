@@ -18,30 +18,36 @@ std::string promptPlayerName(int playerIndex) {
     prompt.setPosition(10, 10);
 
     // The editable text
-    std::string input;
+    std::string input = "";
     sf::Text edit(input, font, 24);
     edit.setFillColor(sf::Color::Yellow);
     edit.setPosition(10, 50);
 
-    while (win.isOpen()) {
+    while (win.isOpen())
+    {
         sf::Event e;
-        while (win.pollEvent(e)) {
-            if (e.type == sf::Event::Closed) {
+        while (win.pollEvent(e))
+        {
+            if (e.type == sf::Event::Closed)
+            {
                 win.close();
                 return "";  // cancelled
             }
-            if (e.type == sf::Event::TextEntered) {
-                if (e.text.unicode == '\r' || e.text.unicode == '\n') {
+            if (e.type == sf::Event::TextEntered)
+            {
+                if ((e.text.unicode == '\r' || e.text.unicode == '\n') && !input.empty())
+                {
                     // Enter pressed
                     win.close();
                     return input;
                 }
-                else if (e.text.unicode == 8 && !input.empty()) {
+                else if (e.text.unicode == 8 && !input.empty())
+                {
                     // Backspace
                     input.pop_back();
                 }
-                else if (e.text.unicode >= 32 && e.text.unicode < 128) {
-                    // Visible ASCII
+                else if (e.text.unicode >= 32 && e.text.unicode < 128)
+                {
                     input += static_cast<char>(e.text.unicode);
                 }
                 edit.setString(input);
