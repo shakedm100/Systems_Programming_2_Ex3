@@ -11,6 +11,7 @@ enum class Phase
     ChooseAction, // pick an action button
     ChooseTarget, // pick a target for actions that require one
     ReactionTime,
+    ReactionBribe,
     ResolveAction,// apply the chosen action
     EndTurn,       // advance to next player
     GameOver        // Finish the game

@@ -136,7 +136,7 @@ void Player::reverseCoup(Player &save)
     throw NotImplementedException("Not a General");
 }
 
-void Player::preventBribe()
+void Player::preventBribe(Player &prevent)
 {
     throw NotImplementedException("Not a Judge");
 }

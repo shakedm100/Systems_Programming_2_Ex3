@@ -48,6 +48,7 @@ public:
     void clearPendingReverse();
     std::string getPendingActionLabel();
     void performPendingReverse(std::string &reverseAction);
+    bool isPendingActionBribe() const;
 
 private:
     std::string whyCannotPerform(Player* actor, const std::string& action, Player* pendingTarget);

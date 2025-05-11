@@ -89,8 +89,8 @@ std::string Game::getPendingActionLabel()
 {
     if(pending.actionLabel == "Tax")
         return "Prevent Tax";
-    /*else if(pending.actionLabel == "Bribe")
-        return "Reverse Bribe"; TODO: Return here*/
+    else if(pending.actionLabel == "Bribe")
+        return "Reverse Bribe";
     else if(pending.actionLabel == "Arrest")
         return "Prevent Arrest";
     else if(pending.actionLabel == "Sanction")
@@ -106,8 +106,8 @@ bool Game::actionNeedsTarget(string action)
     if(action == "Gather" || action == "Tax" || action == "Bribe" || action == "Skip" ||
         action == "Invest")
         return false;
-    if (action == "Arrest"   || action == "Sanction" || action == "Coup" || action == "Prevent Tax" ||
-        action == "Peek" || action == "Prevent Arrest" || action == "Reverse Coup")
+    if (action == "Arrest" || action == "Sanction" || action == "Coup" ||
+        action == "Peek")
         return true;
 
     return false;
@@ -312,5 +312,16 @@ void Game::performPendingReverse(std::string &reverseAction)
         current_turn->reverseCoup(*pending.target);
         alivePlayers.push_back(pending.target);
     }
+    if(reverseAction == "Reverse Bribe")
+    {
+        current_turn->preventBribe(*pending.actor);
+    }
+}
+
+bool Game::isPendingActionBribe() const
+{
+    if(pending.actionLabel == "Bribe")
+        return true;
+    return false;
 }
 

@@ -121,9 +121,12 @@ void TurnController::handleClick(const sf::Event& evt)
             if (game.advancePendingResponder()) {
                 showReactionUI();
             } else {
+                if(game.isPendingActionBribe())
+                    phase = Phase::ReactionBribe;
+                else
+                    phase = Phase::EndTurn;
                 game.clearPendingReverse();
                 hideReactionUI();  // Also hide overlay
-                phase = Phase::EndTurn;
             }
         }
         return;
@@ -172,7 +175,7 @@ void TurnController::handleClick(const sf::Event& evt)
             for (size_t t=0; t<targetBtns.size(); ++t) {
                 if (targetBtns[t].getGlobalBounds().contains(m)) {
                     pendingTarget = otherPlayers[t];
-                    phase = Phase::ResolveAction;
+                    phase = Phase::StartTurn;
                     return;
                 }
             }
@@ -193,20 +196,28 @@ void TurnController::update()
             break;
         case Phase::ResolveAction:
             applyPending();
-        if (game.checkWinner())
-            finishGame();
-        else if (game.getCurrentTurn()->getExtraTurns() > 0)
-        {
-            game.getCurrentTurn()->decreaseExtraTurns();
-            phase = Phase::StartTurn;
-        }
-        else if (game.hasPendingReverse()) {
-            phase = Phase::ReactionTime;
-            showReactionUI();
-        }
-        else
-            phase = Phase::EndTurn;
-        break;
+            if (game.checkWinner())
+                finishGame();
+            else if (game.hasPendingReverse())
+                {
+                phase = Phase::ReactionTime;
+                showReactionUI();
+            }
+            else if (game.getCurrentTurn()->getExtraTurns() > 0)
+            {
+                game.getCurrentTurn()->decreaseExtraTurns();
+                phase = Phase::StartTurn;
+            }
+            else
+                phase = Phase::EndTurn;
+            break;
+        case Phase::ReactionBribe:
+            if (game.getCurrentTurn()->getExtraTurns() > 0)
+            {
+                game.getCurrentTurn()->decreaseExtraTurns();
+                phase = Phase::StartTurn;
+            }
+            break;
         case Phase::EndTurn:
             finishTurn();
         phase = Phase::StartTurn;
