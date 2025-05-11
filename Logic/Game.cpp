@@ -115,6 +115,8 @@ bool Game::actionNeedsTarget(string action)
 
 std::string Game::whyCannotPerform(Player* actor, const std::string& action, Player* pendingTarget)
 {
+    if(actor->getCoins() >= 10 && action != "Coup")
+        return "Above 10 coins you must coup!";
     if(action == "Skip")
         return "";
     if (pendingTarget == nullptr) {

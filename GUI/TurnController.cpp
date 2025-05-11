@@ -175,7 +175,7 @@ void TurnController::handleClick(const sf::Event& evt)
             for (size_t t=0; t<targetBtns.size(); ++t) {
                 if (targetBtns[t].getGlobalBounds().contains(m)) {
                     pendingTarget = otherPlayers[t];
-                    phase = Phase::StartTurn;
+                    phase = Phase::ResolveAction;
                     return;
                 }
             }
