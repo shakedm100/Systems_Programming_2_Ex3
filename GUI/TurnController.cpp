@@ -343,7 +343,7 @@ void TurnController::setupForCurrentPlayer()
 void TurnController::finishTurn()
 {
     game.getCurrentTurn()->clearStatusEffects();
-    peekTargets.clear();
+    peekThisTurn = false;
     game.nextTurn();
 }
 
@@ -366,7 +366,7 @@ void TurnController::updateStatusLabels()
                << p->getClassName() << "\n"
                << (p->getStatus().isAlive ? "Alive" : "Dead") << "\n";
             //ss << "Coins: " << p->getCoins() << "\n"; // for debugging purposes
-            if(!peekTargets.empty() && std::find(peekTargets.begin(), peekTargets.end(), p) != peekTargets.end())
+            if(peekThisTurn)
                 ss << "Coins: " << p->getCoins() << "\n";
             if (p->getStatus().isSanctioned)        // adjust if you have multiple effect types
                 ss << "[Sanctioned]";
@@ -398,7 +398,7 @@ void TurnController::applyPending() {
             game.perform(actor, pendingAction, pendingTarget);
             if (pendingAction == "Peek")
             {
-                peekTargets.push_back(pendingTarget);
+                peekThisTurn = true;
                 phase           = Phase::ChooseAction;
             }
             game.setupPendingReverse(actor, pendingAction, pendingTarget);

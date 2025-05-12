@@ -2,7 +2,6 @@
 
 int Spy::peek(Player& role)
 {
-    extraTurns++;
     return role.getCoins();
 }
 

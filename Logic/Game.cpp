@@ -104,10 +104,9 @@ std::string Game::getPendingActionLabel()
 bool Game::actionNeedsTarget(string action)
 {
     if(action == "Gather" || action == "Tax" || action == "Bribe" || action == "Skip" ||
-        action == "Invest")
+        action == "Invest" || action == "Peek")
         return false;
-    if (action == "Arrest" || action == "Sanction" || action == "Coup" ||
-        action == "Peek")
+    if (action == "Arrest" || action == "Sanction" || action == "Coup")
         return true;
 
     return false;
@@ -141,6 +140,12 @@ std::string Game::whyCannotPerform(Player* actor, const std::string& action, Pla
                 return "Actor is not a baron";
             if(actor->getCoins() < 3)
                 return "you need at least 3 coins to invest";
+            return "";
+        }
+        if(action == "Peek")
+        {
+            if(actor->getClassName() != "Spy")
+                return "Actor is not a spy";
             return "";
         }
     } else {
@@ -198,6 +203,12 @@ void Game::perform(Player *actor, string action, Player *pendingTarget)
             actor->bribe();
         else if(action == "Invest")
             actor->invest();
+        if(action == "Peek")
+        {
+            for(int i = 0; i < alivePlayers.size(); i++)
+                actor->peek(*alivePlayers[i]);
+            actor->increaseExtraTurns();
+        }
     }
     else
     {
@@ -215,8 +226,6 @@ void Game::perform(Player *actor, string action, Player *pendingTarget)
             int i = indexOf(pendingTarget);
             alivePlayers.erase(alivePlayers.begin() + i);
         }
-        if(action == "Peek")
-            actor->peek(*pendingTarget);
     }
 }
 

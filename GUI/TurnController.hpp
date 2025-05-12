@@ -25,7 +25,7 @@ private:
     sf::RenderWindow& wnd;
     Phase phase;
     const int MAX_PLAYERS = 6;
-    std::vector<Player*> peekTargets;
+    bool peekThisTurn;
 
     // main action buttons
     std::vector<std::string> actions;
