@@ -1,27 +1,26 @@
 #include "TurnController.hpp"
 #include <sstream>
 
-//TODO: Consider changing Peek() to show all coins
 //TODO: Add comments to methods
 //TODO: Add my name to every file
 //TODO: Migrate to vscode and Make
 //TODO: Add tests
 TurnController::TurnController(Game& game, sf::Font& font, sf::RenderWindow& wnd)
-            : game(game), font(font), wnd(wnd)
+            : game(game), font(font), window(wnd)
 {
     // prepare action buttons
     float x = 20.f, y = 20.f;
     for (const auto& name : game.getActionNames())
     {
-        sf::RectangleShape b({120.f, 40.f});
-        b.setPosition(x, y);
-        b.setFillColor({100,100,200});
+        sf::RectangleShape currentButton({120.f, 40.f});
+        currentButton.setPosition(x, y);
+        currentButton.setFillColor({100,100,200});
         actions.push_back(name);
-        btns.push_back(b);
+        buttons.push_back(currentButton);
         sf::Text t(name, font, 25);
         t.setFillColor(sf::Color::White);
-        centerTextIn(b, t);
-        btnLabels.push_back(t);
+        centerLabel(t, currentButton);
+        buttonLabels.push_back(t);
         x += 140.f;
     }
     // current-player label
@@ -67,37 +66,36 @@ TurnController::TurnController(Game& game, sf::Font& font, sf::RenderWindow& wnd
     reactionTitle.setPosition(wnd.getSize().x/2.f, 50.f);
 
     // Reverse button
-    btnReverse.setSize({200.f, 60.f});
-    btnReverse.setPosition(
-        wnd.getSize().x/2.f - btnReverse.getSize().x - 10.f,
-        wnd.getSize().y/2.f - btnReverse.getSize().y/2.f
-    );
-    btnReverse.setFillColor({200,200,50});
-    btnReverse.setOutlineColor({100,100,20});
-    btnReverse.setOutlineThickness(4.f);
+    buttonReverse.setSize({200.f, 60.f});
+    buttonReverse.setPosition(wnd.getSize().x/2.f - buttonReverse.getSize().x - 10.f,
+        wnd.getSize().y/2.f - buttonReverse.getSize().y/2.f);
+    buttonReverse.setFillColor({200,200,50});
+    buttonReverse.setOutlineColor({100,100,20});
+    buttonReverse.setOutlineThickness(4.f);
 
-    lblReverse.setFont(font);
-    lblReverse.setString("Reverse");
-    lblReverse.setCharacterSize(24);
-    lblReverse.setFillColor(sf::Color::Black);
-    centerLabel(lblReverse, btnReverse);
+    labelReverse.setFont(font);
+    labelReverse.setString("Reverse");
+    labelReverse.setCharacterSize(24);
+    labelReverse.setFillColor(sf::Color::Black);
+    centerLabel(labelReverse, buttonReverse);
 
     // Pass button
-    btnPass.setSize({200.f, 60.f});
-    btnPass.setPosition(
-        wnd.getSize().x/2.f + 10.f,
-        wnd.getSize().y/2.f - btnPass.getSize().y/2.f
-    );
-    btnPass.setFillColor({200,200,50});
-    btnPass.setOutlineColor({100,100,20});
-    btnPass.setOutlineThickness(4.f);
+    buttonPass.setSize({200.f, 60.f});
+    buttonPass.setPosition(wnd.getSize().x/2.f + 10.f,wnd.getSize().y/2.f - buttonPass.getSize().y/2.f);
+    buttonPass.setFillColor({200,200,50});
+    buttonPass.setOutlineColor({100,100,20});
+    buttonPass.setOutlineThickness(4.f);
 
-    lblPass.setFont(font);
-    lblPass.setString("Pass");
-    lblPass.setCharacterSize(24);
-    lblPass.setFillColor(sf::Color::Black);
-    centerLabel(lblPass, btnPass);
+    labelPass.setFont(font);
+    labelPass.setString("Pass");
+    labelPass.setCharacterSize(24);
+    labelPass.setFillColor(sf::Color::Black);
+    centerLabel(labelPass, buttonPass);
 
+    peekThisTurn = false;
+    pendingTarget = nullptr;
+    reactionActive = false;
+    errorActive = false;
     phase = Phase::StartTurn;
 }
 
@@ -111,21 +109,24 @@ void TurnController::centerLabel(sf::Text& label, const sf::RectangleShape& butt
     label.setPosition(pos + size * 0.5f);
 }
 
-void TurnController::handleClick(const sf::Event& evt)
+void TurnController::handleClick(const sf::Event& event)
 {
-    if (phase == Phase::ReactionTime && evt.type == sf::Event::MouseButtonPressed && evt.mouseButton.button == sf::Mouse::Left)
+    if (phase == Phase::ReactionTime && event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left)
     {
-        sf::Vector2f m(evt.mouseButton.x, evt.mouseButton.y);
-        if (btnReverse.getGlobalBounds().contains(m)) {
-            performPendingReverseUI(lblReverse.getString());
+        sf::Vector2f m(event.mouseButton.x, event.mouseButton.y);
+        if (buttonReverse.getGlobalBounds().contains(m))
+        {
+            executeReverseAction(labelReverse.getString());
             game.clearPendingReverse();
             hideReactionUI();
             phase = Phase::EndTurn;
         }
-        else if (btnPass.getGlobalBounds().contains(m)) {
-            if (game.advancePendingResponder()) {
+        else if (buttonPass.getGlobalBounds().contains(m))
+        {
+            if (game.advancePendingResponder())
                 showReactionUI();
-            } else {
+            else
+            {
                 if(game.isPendingActionBribe())
                     phase = Phase::ReactionBribe;
                 else
@@ -137,14 +138,15 @@ void TurnController::handleClick(const sf::Event& evt)
         return;
     }
 
-    if (evt.type != sf::Event::MouseButtonPressed || evt.mouseButton.button != sf::Mouse::Left)
+    if (event.type != sf::Event::MouseButtonPressed || event.mouseButton.button != sf::Mouse::Left)
         return;
-    sf::Vector2f m(evt.mouseButton.x, evt.mouseButton.y);
+    sf::Vector2f m(event.mouseButton.x, event.mouseButton.y);
     switch (phase)
     {
         case Phase::ChooseAction:
-            for (size_t i = 0; i < specialBtns.size(); ++i) {
-                if (specialBtns[i].getGlobalBounds().contains(m))
+            for (size_t i = 0; i < specialButtons.size(); ++i)
+            {
+                if (specialButtons[i].getGlobalBounds().contains(m))
                 {
                     pendingAction = specialActions[i];
                     phase = Phase::ResolveAction;
@@ -152,9 +154,9 @@ void TurnController::handleClick(const sf::Event& evt)
                 }
             }
 
-            for (size_t i=0; i<btns.size(); ++i)
+            for (size_t i=0; i<buttons.size(); ++i)
             {
-                if (btns[i].getGlobalBounds().contains(m))
+                if (buttons[i].getGlobalBounds().contains(m))
                 {
                     pendingAction = actions[i];
                     if (game.actionNeedsTarget(pendingAction))
@@ -171,8 +173,10 @@ void TurnController::handleClick(const sf::Event& evt)
             break;
 
         case Phase::ChooseTarget:
-            for (size_t t=0; t<targetBtns.size(); ++t) {
-                if (targetBtns[t].getGlobalBounds().contains(m)) {
+            for (size_t t=0; t<targetButtons.size(); ++t)
+            {
+                if (targetButtons[t].getGlobalBounds().contains(m))
+                {
                     pendingTarget = otherPlayers[t];
                     phase = Phase::ResolveAction;
                     return;
@@ -194,11 +198,11 @@ void TurnController::update()
             phase = Phase::ChooseAction;
             break;
         case Phase::ResolveAction:
-            applyPending();
+            executeAction();
             if (game.checkWinner())
                 finishGame();
             else if (game.hasPendingReverse())
-                {
+            {
                 phase = Phase::ReactionTime;
                 showReactionUI();
             }
@@ -241,46 +245,46 @@ void TurnController::render()
 
     // draw only; clearing&display done in main
     if (phase==Phase::GameOver)
-        wnd.draw(gameOverLabel);
+        window.draw(gameOverLabel);
     else if (phase == Phase::ReactionTime)
     {
-        wnd.draw(reactionTitle);
-        wnd.draw(btnReverse);
-        wnd.draw(lblReverse);
-        wnd.draw(btnPass);
-        wnd.draw(lblPass);
-        wnd.draw(currentPlayer);
-        wnd.draw(roleLabel);
-        wnd.draw(coinLabel);
+        window.draw(reactionTitle);
+        window.draw(buttonReverse);
+        window.draw(labelReverse);
+        window.draw(buttonPass);
+        window.draw(labelPass);
+        window.draw(currentPlayer);
+        window.draw(roleLabel);
+        window.draw(coinLabel);
         updateStatusLabels();
     }
     else
     {
         updateStatusLabels();
         for (auto& l : playerStatusLabels)
-            wnd.draw(l);
-        for (auto& b:btns)
-            wnd.draw(b);
-        for (auto& l:btnLabels)
-            wnd.draw(l);
-        for (auto& b : specialBtns)
-            wnd.draw(b);
+            window.draw(l);
+        for (auto& b:buttons)
+            window.draw(b);
+        for (auto& l:buttonLabels)
+            window.draw(l);
+        for (auto& b : specialButtons)
+            window.draw(b);
         for (auto& t : specialLabels)
-            wnd.draw(t);
+            window.draw(t);
 
         if (phase==Phase::ChooseTarget)
         {
-            for (auto& b:targetBtns) wnd.draw(b);
-            for (auto& l:targetLbls) wnd.draw(l);
+            for (auto& b:targetButtons) window.draw(b);
+            for (auto& l:targetLabels) window.draw(l);
         }
-        wnd.draw(currentPlayer);
-        wnd.draw(roleLabel);
-        wnd.draw(coinLabel);
+        window.draw(currentPlayer);
+        window.draw(roleLabel);
+        window.draw(coinLabel);
         if (errorActive) {
-            wnd.draw(errorLabel);
+            window.draw(errorLabel);
         }
         for (int i = 0; i < MAX_PLAYERS; ++i)
-            wnd.draw(playerStatusLabels[i]);
+            window.draw(playerStatusLabels[i]);
     }
 }
 
@@ -295,12 +299,12 @@ void TurnController::setupForCurrentPlayer()
     auto tb = currentPlayer.getLocalBounds();
     currentPlayer.setOrigin(tb.left + tb.width, tb.top + tb.height);
     float marginX = 20.f, marginY = 20.f;
-    currentPlayer.setPosition(wnd.getSize().x - marginX, wnd.getSize().y - marginY);
+    currentPlayer.setPosition(window.getSize().x - marginX, window.getSize().y - marginY);
 
     auto rl = roleLabel.getLocalBounds();
     roleLabel.setOrigin(rl.left + rl.width/2.f, rl.top  + rl.height);
     float marginY2 = 60.f;
-    roleLabel.setPosition(wnd.getSize().x/2.f, wnd.getSize().y - marginY2);
+    roleLabel.setPosition(window.getSize().x/2.f, window.getSize().y - marginY2);
 
     auto role = p->getClassName();
 
@@ -323,20 +327,20 @@ void TurnController::setupForCurrentPlayer()
 
 
     // Lay them out down the left side:
-    float sx = 20.f;
-    float sy = wnd.getSize().y / 1.3f;    // start ~80px up from bottom
+    float downX = 20.f;
+    float downY = window.getSize().y / 1.3f;    // start ~80px up from bottom
     for (auto& name : specialActions) {
         sf::RectangleShape b({200.f, 50.f});
-        b.setPosition(sx, sy);
+        b.setPosition(downX, downY);
         b.setFillColor({50,180,50});
-        specialBtns.push_back(b);
+        specialButtons.push_back(b);
 
         sf::Text lbl(name, font, 30);
         lbl.setFillColor(sf::Color::White);
-        centerTextIn(b, lbl);
+        centerLabel(lbl, b);
         specialLabels.push_back(lbl);
 
-        sy -= 70.f;  // stack upward
+        downY -= 70.f;  // stack upward
     }
 }
 
@@ -354,42 +358,44 @@ void TurnController::updateStatusLabels()
     const float lineHeight = 22.f;     // character size + spacing
     const float startY    = 20.f;
 
-    for (int i = 0; i < MAX_PLAYERS; ++i) {
-        auto& lbl = playerStatusLabels[i];
-        if (i < (int)players.size()) {
-            Player* p = players[i];
+    for (int i = 0; i < MAX_PLAYERS; ++i)
+    {
+        auto& currentLabel = playerStatusLabels[i];
+        if (i < (int)players.size())
+        {
+            Player* current = players[i];
 
             // Build the status string
-            std::ostringstream ss;
-            ss << "-------------------------\n"
-               << p->getName() << "\n"
-               << p->getClassName() << "\n"
-               << (p->getStatus().isAlive ? "Alive" : "Dead") << "\n";
+            std::ostringstream statusString;
+            statusString << "-------------------------\n"
+               << current->getName() << "\n"
+               << current->getClassName() << "\n"
+               << (current->getStatus().isAlive ? "Alive" : "Dead") << "\n";
             //ss << "Coins: " << p->getCoins() << "\n"; // for debugging purposes
             if(peekThisTurn)
-                ss << "Coins: " << p->getCoins() << "\n";
-            if (p->getStatus().isSanctioned)        // adjust if you have multiple effect types
-                ss << "[Sanctioned]";
-            if(p->getStatus().isInvested)
-                ss << " [Invested]";
-            ss << "\n-------------------------\n";
-            lbl.setString(ss.str());
+                statusString << "Coins: " << current->getCoins() << "\n";
+            if (current->getStatus().isSanctioned)        // adjust if you have multiple effect types
+                statusString << "[Sanctioned]";
+            if(current->getStatus().isInvested)
+                statusString << " [Invested]";
+            statusString << "\n-------------------------\n";
+            currentLabel.setString(statusString.str());
 
             // position: anchored to right
-            float x = wnd.getSize().x - rightMargin;
+            float x = window.getSize().x - rightMargin;
             float y = startY + i * lineHeight * 6; // About 6 lines per player
             // to right-align each block, set origin to right edge:
-            sf::FloatRect bounds = lbl.getLocalBounds();
-            lbl.setOrigin(bounds.width, 0);
-            lbl.setPosition(x, y);
+            sf::FloatRect bounds = currentLabel.getLocalBounds();
+            currentLabel.setOrigin(bounds.width, 0);
+            currentLabel.setPosition(x, y);
         } else {
             // hide unused labels
-            lbl.setString("");
+            currentLabel.setString("");
         }
     }
 }
 
-void TurnController::applyPending() {
+void TurnController::executeAction() {
     auto* actor = game.getCurrentTurn();
     try
     {
@@ -399,7 +405,7 @@ void TurnController::applyPending() {
             if (pendingAction == "Peek")
             {
                 peekThisTurn = true;
-                phase           = Phase::ChooseAction;
+                phase = Phase::ChooseAction;
             }
             game.setupPendingReverse(actor, pendingAction, pendingTarget);
             pendingTarget = nullptr;
@@ -412,7 +418,6 @@ void TurnController::applyPending() {
         centerOrigin(errorLabel);
         game.getCurrentTurn()->increaseExtraTurns();
         phase = Phase::ChooseAction;
-        return;
     }
 }
 
@@ -426,53 +431,48 @@ void TurnController::showError(const std::string& msg)
 
 void TurnController::enterTargetMode()
 {
-    targetBtns.clear();
-    targetLbls.clear();
+    targetButtons.clear();
+    targetLabels.clear();
     otherPlayers.clear();
     float x = 20.f, y = 80.f + 60.f;
-    for (auto* p : game.getAlivePlayers()) {
-        if (p == game.getCurrentTurn()) continue;
-        otherPlayers.push_back(p);
-        sf::RectangleShape b({120.f,40.f}); b.setPosition(x,y); b.setFillColor({200,80,80});
-        targetBtns.push_back(b);
-        sf::Text t(p->getName(), font, 18);
-        t.setFillColor(sf::Color::White);
-        centerTextIn(b, t);
-        targetLbls.push_back(t);
+    for (auto* current : game.getAlivePlayers())
+    {
+        if (current == game.getCurrentTurn()) continue;
+        otherPlayers.push_back(current);
+        sf::RectangleShape button({120.f,40.f}); button.setPosition(x,y);
+        button.setFillColor({200,80,80});
+        targetButtons.push_back(button);
+        sf::Text text(current->getName(), font, 18);
+        text.setFillColor(sf::Color::White);
+        centerLabel(text, button);
+        targetLabels.push_back(text);
         x += 140.f;
     }
 }
 
 void TurnController::clearUI()
 {
-    targetBtns.clear();
-    targetLbls.clear();
+    targetButtons.clear();
+    targetLabels.clear();
     otherPlayers.clear();
     specialActions.clear();
-    specialBtns.clear();
+    specialButtons.clear();
     specialLabels.clear();
 }
 
-void TurnController::centerOrigin(sf::Text& t)
+void TurnController::centerOrigin(sf::Text& text)
 {
-    auto b = t.getLocalBounds();
-    t.setOrigin(b.left + b.width/2.f, b.top + b.height/2.f);
-}
-
-void TurnController::centerTextIn(const sf::RectangleShape& b, sf::Text& t)
-{
-    auto bb = b.getGlobalBounds();
-    auto tb = t.getLocalBounds();
-    t.setPosition(
-            bb.left + (bb.width - tb.width)/2 - tb.left,
-            bb.top  + (bb.height - tb.height)/2 - tb.top
-    );
+    auto bound = text.getLocalBounds();
+    text.setOrigin(bound.left + bound.width/2.f, bound.top + bound.height/2.f);
 }
 
 void TurnController::finishGame() {
     // clear other UI
-    btns.clear(); btnLabels.clear();
-    targetBtns.clear(); targetLbls.clear(); otherPlayers.clear();
+    buttons.clear();
+    buttonLabels.clear();
+    targetButtons.clear();
+    targetLabels.clear();
+    otherPlayers.clear();
     // prepare game-over label
     std::string winner = game.getWinner()->getName();
     gameOverLabel.setString("Game Over! Winner: " + winner);
@@ -482,7 +482,7 @@ void TurnController::finishGame() {
     // center the origin based on updated bounds
     centerOrigin(gameOverLabel);
     // place at window center
-    gameOverLabel.setPosition(wnd.getSize().x/2.f, wnd.getSize().y/2.f);
+    gameOverLabel.setPosition(window.getSize().x/2.f, window.getSize().y/2.f);
     phase = Phase::GameOver;
 }
 
@@ -490,10 +490,10 @@ void TurnController::showReactionUI()
 {
     reactionActive = true;
     // set reverse label
-    std::string act = game.getPendingActionLabel();
-    std::string text = act;
-    lblReverse.setString(text);
-    centerLabel(lblReverse, btnReverse);
+    const std::string act = game.getPendingActionLabel();
+    const std::string& text = act;
+    labelReverse.setString(text);
+    centerLabel(labelReverse, buttonReverse);
 
     currentPlayer.setString(game.getCurrentTurn()->getName() + "'s Turn");
     roleLabel.setString("Role: " + game.getCurrentTurn()->getClassName());
@@ -506,7 +506,7 @@ void TurnController::hideReactionUI()
     reactionActive = false;
 }
 
-void TurnController::performPendingReverseUI(std::string reverseAction)
+void TurnController::executeReverseAction(std::string reverseAction)
 {
     game.performPendingReverse(reverseAction);
 }
