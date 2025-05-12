@@ -3,12 +3,14 @@
 #include <vector>
 #include <string>
 
-struct PendingReverse {
+struct PendingReverse
+{
     std::string actionLabel;
-    Player*    actor;
-    Player*    target;
+    Player* actor;
+    Player* target;
     std::vector<Player*> responders;
-    size_t     nextResponder = 0;
+    size_t nextResponder = 0;
+
 };
 
 class Game
@@ -19,14 +21,19 @@ private:
     std::vector<Player*> alivePlayers;
     Player* game_winner;
     PendingReverse pending;
-    bool hasPending = false;
-    size_t currentIndex = 0;
-    size_t indexBeforeReaction = 0;
+    bool hasPending;
+    size_t currentIndex;
+    size_t indexBeforeReaction;
 
 
 public:
-    Game() : current_turn(nullptr), players(), alivePlayers(), game_winner(nullptr) {};
-    explicit Game(const std::vector<Player*>& newPlayers) : current_turn(newPlayers.at(0)), players(newPlayers), alivePlayers(newPlayers), game_winner(nullptr) {};
+    Game() : current_turn(nullptr), players(), alivePlayers(), game_winner(nullptr), hasPending(false),
+    currentIndex(0), indexBeforeReaction(0)
+    {
+
+    };
+    explicit Game(const std::vector<Player*>& newPlayers) : current_turn(newPlayers.at(0)), players(newPlayers),
+    alivePlayers(newPlayers), game_winner(nullptr), hasPending(false), currentIndex(0), indexBeforeReaction(0) {};
     void turn() const;
     string winner() const;
     bool checkWinner();

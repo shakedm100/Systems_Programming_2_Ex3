@@ -243,15 +243,15 @@ size_t Game::indexOf(Player* p) const
 void Game::setupPendingReverse(Player* actor, const std::string& action, Player* target) {
     // determine reverser role via if/else
     std::string reverserRole;
-    if (action == "Tax") {
+    if (action == "Tax")
         reverserRole = "Governor";
-    } else if (action == "Arrest") {
+    else if (action == "Arrest")
         reverserRole = "Spy";
-    } else if (action == "Coup") {
+    else if (action == "Coup")
         reverserRole = "General";
-    } else if (action == "Bribe") {
+    else if (action == "Bribe")
         reverserRole = "Judge";
-    } else {
+    else {
         hasPending = false;
         return; // not reversible
     }
