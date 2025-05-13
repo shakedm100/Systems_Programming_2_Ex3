@@ -252,14 +252,17 @@ void Game::setupPendingReverse(Player* actor, const std::string& action, Player*
         alivePlayers.push_back(target);
 
 
-    PendingReverse rev{ action, actor, target, {}, 0 };
-    for (size_t i = 0; i < alivePlayers.size(); ++i) {
+    PendingReverse reverse{action, actor, target, {}, 0 };
+    for (size_t i = 0; i < alivePlayers.size(); ++i)
+    {
         Player* p = alivePlayers[(currentIndex + 1 + i) % alivePlayers.size()];
-        if (p != actor && p->getClassName() == reverserRole) {
-            rev.responders.push_back(p);
+        if (p != actor && p->getClassName() == reverserRole)
+        {
+            reverse.responders.push_back(p);
         }
     }
-    if (rev.responders.empty()) {
+    if (reverse.responders.empty())
+    {
         hasPending = false;
         return;
     }
@@ -267,7 +270,7 @@ void Game::setupPendingReverse(Player* actor, const std::string& action, Player*
     if(target != nullptr && target->getClassName() == "General" && action == "Coup") // Erase him because he isn't really alive
         alivePlayers.erase(find(alivePlayers.begin(), alivePlayers.end(), target));
 
-    pending = rev;
+    pending = reverse;
     hasPending = true;
     currentIndex = indexOf(pending.responders[0]);
     current_turn = alivePlayers[currentIndex];
@@ -314,9 +317,7 @@ void Game::performPendingReverse(std::string &reverseAction)
         alivePlayers.push_back(pending.target);
     }
     if(reverseAction == "Reverse Bribe")
-    {
         current_turn->preventBribe(*pending.actor);
-    }
 }
 
 bool Game::isPendingActionBribe() const

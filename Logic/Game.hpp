@@ -98,23 +98,79 @@ public:
 
     /**
      * This method performs a given action on the target
-     * TODO: Continue here
-     * @param actor
-     * @param action
-     * @param target
+     * @param actor the player that's doing the action
+     * @param action the action to perform
+     * @param target the target that's being actioned on, nullptr if the action is with a target
      */
     void perform(Player *actor, string action, Player *target);
+
+    /**
+     * @return all the players who are currently alive
+     */
     std::vector<Player*> getAlivePlayers();
+
+    /**
+     * This method setups a new pending action if the current action
+     * has a reaction option and another player who can react
+     * to that action
+     * @param actor the player that's doing the action
+     * @param action the given action that's being checked
+     * @param target the target that's being actioned on
+     */
     void setupPendingReverse(Player* actor, const std::string& action, Player* target);
+
+    /**
+     * @return true if there is a pending action that can be reacted to,
+     * false otherwise
+     */
     bool hasPendingReverse() const;
+
+    /**
+     * If there is another player that can react to this action then\
+     * advance to that player and return true. False otherwise.
+     * @return true if another pending player exists. False otherwise.
+     */
     bool advancePendingResponder();
+
+    /**
+     * If there is a pending action then clear it.
+     */
     void clearPendingReverse();
+
+    /**
+     * @return the action name that's pending for a reaction action
+     */
     std::string getPendingActionLabel();
+
+    /**
+     * This method is responsible for executing a given reaction action
+     * @param reverseAction the reaction action to execute
+     */
     void performPendingReverse(std::string &reverseAction);
+
+    /**
+     * Checks if the pending action is bribe. Helps handling bribe better.
+     * @return
+     */
     bool isPendingActionBribe() const;
 
 private:
+    /**
+     * This helper method determines if an action can be executed and
+     * return why it can't be performed or an empty string if the action
+     * can be performed
+     * @param actor the player whose playing the action
+     * @param action the action that's being played
+     * @param pendingTarget the target of the action
+     * @return
+     */
     std::string whyCannotPerform(Player* actor, const std::string& action, Player* pendingTarget);
+
+    /**
+     * Given a player, this method returns the index of the player in alivePlayers vector
+     * @param p the player to find
+     * @return the index of the player in alivePlayers
+     */
     size_t indexOf(Player* p) const;
 
     /**
