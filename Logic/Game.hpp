@@ -27,8 +27,7 @@ private:
 
 
 public:
-    Game() : current_turn(nullptr), players(), alivePlayers(), game_winner(nullptr), hasPending(false),
-    currentIndex(0), indexBeforeReaction(0) {};
+    explicit Game(int playersCount);
     explicit Game(const std::vector<Player*>& newPlayers) : current_turn(newPlayers.at(0)), players(newPlayers),
     alivePlayers(newPlayers), game_winner(nullptr), hasPending(false), currentIndex(0), indexBeforeReaction(0) {};
 
@@ -176,5 +175,7 @@ private:
     /**
      * This method changes the index for the current player
      */
-        void rotateToNextPlayer();
+    void rotateToNextPlayer();
+
+    void createGame(const int countPlayers);
 };

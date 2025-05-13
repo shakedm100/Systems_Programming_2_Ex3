@@ -2,7 +2,6 @@
 #include <SFML/Graphics.hpp>
 #include "../Logic/Game.hpp"
 #include <string>
-#include "../Logic/GameUtil.hpp"
 #include "TurnController.hpp"
 
 
@@ -68,7 +67,7 @@ int gameWindow(int players) {
     window.setFramerateLimit(60);
     sf::Font font;
     font.loadFromFile("assets/arial.ttf");
-    Game game = createGame(players);
+    Game game = Game(players);
 
     TurnController controller(game, font, window);
 
