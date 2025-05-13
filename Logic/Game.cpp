@@ -112,27 +112,11 @@ Player* Game::getCurrentTurn() const
     return current_turn;
 }
 
-void Game::rotateToNextPlayer()
-{
-    currentIndex = (currentIndex + 1) % alivePlayers.size();
-}
-
 void Game::nextTurn()
 {
-    rotateToNextPlayer();
-    for(int i = 0; i < alivePlayers.size(); i++)
-    {
-        if(current_turn == alivePlayers[i] && i != alivePlayers.size() - 1)
-        {
-            current_turn = alivePlayers[i+1];
-            break;
-        }
-        else if(current_turn == alivePlayers[i] && i == alivePlayers.size() - 1)
-        {
-            current_turn = alivePlayers[0];
-            break; //Not necessary here
-        }
-    }
+    currentIndex = (currentIndex + 1) % alivePlayers.size();
+    // pick the player directly
+    current_turn = alivePlayers[currentIndex];
 
     if(current_turn->getClassName() == "Merchant" && current_turn->getCoins() >= 3)
         current_turn->aboveThreeCoins();
@@ -329,12 +313,16 @@ void Game::setupPendingReverse(Player* actor, const std::string& action, Player*
     PendingReverse reverse{action, actor, target, {}, 0 };
     for (size_t i = 0; i < alivePlayers.size(); ++i)
     {
-        Player* p = alivePlayers[(currentIndex + 1 + i) % alivePlayers.size()];
-        if (p != actor && p->getClassName() == reverserRole)
+        Player* current = alivePlayers[(currentIndex + 1 + i) % alivePlayers.size()];
+        if (current != actor && current->getClassName() == reverserRole)
         {
-            reverse.responders.push_back(p);
+            // If the action is 'General' and he doesn't have 5 coins he can't react
+            if(current->getClassName() == "General" && current->getCoins() < 5)
+                continue;
+            reverse.responders.push_back(current);
         }
     }
+
     if (reverse.responders.empty())
     {
         hasPending = false;
