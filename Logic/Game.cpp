@@ -33,11 +33,6 @@ Player * Game::getWinner() const
     return game_winner;
 }
 
-void Game::startGame() const
-{
-    *current_turn = *players.front();
-}
-
 Player* Game::getCurrentTurn() const
 {
     return current_turn;
@@ -67,11 +62,6 @@ void Game::nextTurn()
 
     if(current_turn->getClassName() == "Merchant" && current_turn->getCoins() >= 3)
         current_turn->aboveThreeCoins();
-}
-
-void Game::endGame() const
-{
-    *game_winner = *current_turn;
 }
 
 std::vector<Player*> Game::getPlayers()
@@ -191,9 +181,9 @@ bool Game::canPerform(Player* actor, const std::string& action, Player* pendingT
     return true;
 }
 
-void Game::perform(Player *actor, string action, Player *pendingTarget)
+void Game::perform(Player *actor, string action, Player *target)
 {
-    if(pendingTarget == nullptr)
+    if(target == nullptr)
     {
         if(action == "Gather")
             actor->gather();
@@ -213,17 +203,17 @@ void Game::perform(Player *actor, string action, Player *pendingTarget)
     else
     {
         if(action == "Arrest")
-            actor->arrest(*pendingTarget);
+            actor->arrest(*target);
         else if(action == "Sanction")
         {
-            actor->sanction(*pendingTarget);
-            if(pendingTarget->getStatus().isInvested)
-                pendingTarget->investFailure();
+            actor->sanction(*target);
+            if(target->getStatus().isInvested)
+                target->investFailure();
         }
         else if(action == "Coup")
         {
-            actor->coup(*pendingTarget);
-            int i = indexOf(pendingTarget);
+            actor->coup(*target);
+            int i = indexOf(target);
             alivePlayers.erase(alivePlayers.begin() + i);
         }
     }
