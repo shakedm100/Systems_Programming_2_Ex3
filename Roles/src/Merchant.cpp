@@ -6,5 +6,6 @@ string Merchant::getClassName() {
 
 void Merchant::aboveThreeCoins()
 {
-    coins++;
+    if(coins >= 3)
+        coins++;
 }
