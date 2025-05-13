@@ -10,9 +10,12 @@ struct PendingReverse
     Player* target;
     std::vector<Player*> responders;
     size_t nextResponder = 0;
-
 };
 
+/**
+* This class is responsible for all the heavy logic of the game for example
+* whose turn is it, whose alive, if the action can be executed etc.
+*/
 class Game
 {
 private:
@@ -36,7 +39,7 @@ public:
 
     /**
      * The method prints the current game winner and throws an exception
-     * if there is not winner yet
+     * if there is no winner yet
      * @return
      */
     string winner() const;

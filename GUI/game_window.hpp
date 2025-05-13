@@ -3,6 +3,8 @@
 
 /**
  * Launches the main game window
+ * Creates game and TurnController that handles the logic and
+ * the connection between the logic and the UI
  * @param players how many players there are in the current game
  */
 void gameWindow(int players);

@@ -3,7 +3,12 @@
 
 #include "game_window.hpp"
 
-// promptPlayerCount and gameWindow as before…
+/**
+ * This method receives a Font for its text and asks the player for input
+ * how many players will play the next game
+ * @param font a font usually found in /Assets folder
+ * @return how many players will play the next game
+ */
 int promptPlayerCount(sf::Font& font) {
     const int minPlayers = 2, maxPlayers = 6;
     int count = minPlayers;

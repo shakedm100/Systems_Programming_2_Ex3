@@ -4,6 +4,11 @@
 #include <vector>
 #include <string>
 
+/**
+ * This enum defines all the different states
+ * the game can be in. Used by turn controller to manage
+ * the flow of the turns.
+ */
 enum class Phase
 {
     StartTurn,      // Initialize UI for new player
@@ -16,6 +21,12 @@ enum class Phase
     GameOver        // Finish the game
 };
 
+/**
+ * This class is responsible for bridging between the UI
+ * and the logic of the game implemented in Game.cpp
+ * This class main usage is to handle what to show when
+ * and what to do when. Basically a manager class
+ */
 class TurnController
 {
 private:
