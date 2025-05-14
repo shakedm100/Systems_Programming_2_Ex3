@@ -173,7 +173,7 @@ public:
      * to allow changing his current status
      * @return the status of the current player
      */
-    Status& setStatus();
+    Status& getStatus();
 
     /**
      * 

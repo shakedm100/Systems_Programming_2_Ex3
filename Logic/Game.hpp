@@ -31,8 +31,11 @@ private:
 
 public:
     explicit Game(int playersCount);
+    Game(std::vector<Player *> players) : current_turn(players.at(0)), players(players),
+    alivePlayers(players), game_winner(nullptr), hasPending(false), currentIndex(0), indexBeforeReaction(0) {}
+    ~Game();
 
-    /**
+     /**
      * Prints the current turn, useful for debugging
      */
     void turn() const;

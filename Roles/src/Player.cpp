@@ -151,7 +151,7 @@ Status Player::getStatus() const
     return status;
 }
 
-Status & Player::setStatus()
+Status & Player::getStatus()
 {
     return status;
 }

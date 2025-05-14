@@ -33,38 +33,44 @@ void Game::createGame(const int playersCount)
         {
             case 1:
             {
-                players.push_back(new Governor(name));
-                alivePlayers.push_back(new Governor(name));
+                Governor* gov = new Governor(name);
+                players.push_back(gov);
+                alivePlayers.push_back(gov);
                 break;
             }
             case 2:
             {
-                players.push_back(new Spy(name));
-                alivePlayers.push_back(new Spy(name));
+                Spy* spy = new Spy(name);
+                players.push_back(spy);
+                alivePlayers.push_back(spy);
                 break;
             }
             case 3:
             {
-                players.push_back(new Baron(name));
-                alivePlayers.push_back(new Baron(name));
+                Baron* baron = new Baron(name);
+                players.push_back(baron);
+                alivePlayers.push_back(baron);
                 break;
             }
             case 4:
             {
-                players.push_back(new General(name));
-                alivePlayers.push_back(new General(name));
+                General* general = new General(name);
+                players.push_back(general);
+                alivePlayers.push_back(general);
                 break;
             }
             case 5:
             {
-                players.push_back(new Judge(name));
-                alivePlayers.push_back(new Judge(name));
+                Judge* judge = new Judge(name);
+                players.push_back(judge);
+                alivePlayers.push_back(judge);
                 break;
             }
             case 6:
             {
-                players.push_back(new Merchant(name));
-                alivePlayers.push_back(new Merchant(name));
+                Merchant* merchant = new Merchant(name);
+                players.push_back(merchant);
+                alivePlayers.push_back(merchant);
                 break;
             }
         }
@@ -76,6 +82,12 @@ currentIndex(0), indexBeforeReaction(0)
 {
     createGame(playersCount);
     current_turn = players.at(0);
+}
+
+Game::~Game()
+{
+    for(auto p : players)
+        delete p;
 }
 
 void Game::turn() const

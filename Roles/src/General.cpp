@@ -9,7 +9,7 @@ void General::reverseCoup(Player &save)
 {
     if(!save.getStatus().isAlive)
     {
-        save.setStatus().isAlive = true;
+        save.getStatus().isAlive = true;
         coins -= 5;
     }
 }
