@@ -158,6 +158,11 @@ public:
      */
     bool isPendingActionBribe() const;
 
+    /**
+    * @returns a vector with all the players names
+    */
+    std::vector<std::string> getPlayersNames() const;
+
 private:
     /**
      * This helper method determines if an action can be executed and
@@ -187,4 +192,5 @@ private:
     * and assigns each player a random role
     */
     void createGame(int countPlayers);
+
 };

@@ -9,44 +9,45 @@ std::string promptPlayerName(int playerIndex) {
     const sf::Vector2u size{400, 150};
     sf::RenderWindow win({size.x, size.y}, "Enter Player Name", sf::Style::Close);
     win.setFramerateLimit(30);
-    sf::Font font = sf::Font();
+
+    sf::Font font;
     font.loadFromFile("Assets/arial.ttf");
+
     // Instruction text
     sf::Text prompt("Enter name for Player " + std::to_string(playerIndex) + ":", font, 20);
     prompt.setFillColor(sf::Color::White);
     prompt.setPosition(10, 10);
 
     // The editable text
-    std::string input = "";
+    std::string input;
     sf::Text edit(input, font, 24);
-    edit.setFillColor(sf::Color::Yellow);
+    edit.setFillColor(sf::Color::Black);        // dark text
     edit.setPosition(10, 50);
+
+    // → add a white rectangle behind the edit field
+    sf::RectangleShape inputBox;
+    inputBox.setSize({380.f, 32.f});
+    inputBox.setFillColor(sf::Color::White);
+    inputBox.setPosition(10.f, 50.f);
 
     while (win.isOpen())
     {
         sf::Event e;
         while (win.pollEvent(e))
         {
-            if (e.type == sf::Event::Closed)
-            {
+            if (e.type == sf::Event::Closed) {
                 win.close();
-                return "";  // cancelled
+                return "";
             }
-            if (e.type == sf::Event::TextEntered)
-            {
-                if ((e.text.unicode == '\r' || e.text.unicode == '\n') && !input.empty())
-                {
-                    // Enter pressed
+            if (e.type == sf::Event::TextEntered) {
+                if ((e.text.unicode == '\r' || e.text.unicode == '\n') && !input.empty()) {
                     win.close();
                     return input;
                 }
-                else if (e.text.unicode == 8 && !input.empty())
-                {
-                    // Backspace
+                else if (e.text.unicode == 8 && !input.empty()) {
                     input.pop_back();
                 }
-                else if (e.text.unicode >= 32 && e.text.unicode < 128)
-                {
+                else if (e.text.unicode >= 32 && e.text.unicode < 128) {
                     input += static_cast<char>(e.text.unicode);
                 }
                 edit.setString(input);
@@ -55,12 +56,14 @@ std::string promptPlayerName(int playerIndex) {
 
         win.clear(sf::Color(50,50,50));
         win.draw(prompt);
-        win.draw(edit);
+        win.draw(inputBox);   // draw white background
+        win.draw(edit);       // draw text on top
         win.display();
     }
 
     return "";
 }
+
 
 int gameWindow(int players) {
     sf::RenderWindow window(sf::VideoMode(1200,900), "Coup Game");

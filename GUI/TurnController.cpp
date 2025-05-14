@@ -2,7 +2,6 @@
 #include "TurnController.hpp"
 #include <sstream>
 
-//TODO: Add my name to every file
 //TODO: Migrate to vscode and Make
 //TODO: Add demo (main.cpp)
 TurnController::TurnController(Game& game, sf::Font& font, sf::RenderWindow& wnd)

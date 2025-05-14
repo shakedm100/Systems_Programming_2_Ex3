@@ -78,8 +78,19 @@ void Game::createGame(const int playersCount)
     }
 }
 
+std::vector<std::string> Game::getPlayersNames() const
+{
+    vector<string> names;
+    for(auto player: players)
+    {
+        names.push_back(player->getName());
+    }
+
+    return names;
+}
+
 Game::Game(int playersCount) : game_winner(nullptr), hasPending(false),
-currentIndex(0), indexBeforeReaction(0)
+                               currentIndex(0), indexBeforeReaction(0)
 {
     createGame(playersCount);
     current_turn = players.at(0);
