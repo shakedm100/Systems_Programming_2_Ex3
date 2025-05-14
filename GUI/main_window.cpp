@@ -1,6 +1,6 @@
+//shaked1mi@gmail.com
 #include <SFML/Graphics.hpp>
 #include <iostream>
-
 #include "game_window.hpp"
 
 /**

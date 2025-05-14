@@ -1,4 +1,4 @@
-#include <cmath>
+//shaked1mi@gmail.com
 #include <SFML/Graphics.hpp>
 #include "../Logic/Game.hpp"
 #include <string>

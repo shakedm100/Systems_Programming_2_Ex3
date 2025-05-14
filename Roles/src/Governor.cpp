@@ -1,5 +1,5 @@
+//shaked1mi@gmail.com
 #include "../headers/Governor.hpp"
-
 
 bool Governor::tax()
 {

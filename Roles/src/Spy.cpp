@@ -1,3 +1,4 @@
+//shaked1mi@gmail.com
 #include "../headers/Spy.hpp"
 
 int Spy::peek(Player& role)

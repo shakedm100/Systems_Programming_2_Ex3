@@ -1,3 +1,4 @@
+//shaked1mi@gmail.com
 #include "../headers/Merchant.hpp"
 
 string Merchant::getClassName() {

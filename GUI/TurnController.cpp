@@ -1,10 +1,10 @@
+//shaked1mi@gmail.com
 #include "TurnController.hpp"
 #include <sstream>
 
-//TODO: Add comments to methods
 //TODO: Add my name to every file
 //TODO: Migrate to vscode and Make
-//TODO: Add tests
+//TODO: Add demo (main.cpp)
 TurnController::TurnController(Game& game, sf::Font& font, sf::RenderWindow& wnd)
             : game(game), font(font), window(wnd)
 {
