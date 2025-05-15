@@ -81,7 +81,7 @@ void Game::createGame(const int playersCount)
 std::vector<std::string> Game::getPlayersNames() const
 {
     vector<string> names;
-    for(auto player: players)
+    for(auto player: alivePlayers)
     {
         names.push_back(player->getName());
     }
@@ -104,7 +104,7 @@ Game::~Game()
 
 void Game::turn() const
 {
-    cout << current_turn << endl;
+    cout << *current_turn << endl;
 }
 
 string Game::winner() const
@@ -186,6 +186,8 @@ bool Game::actionNeedsTarget(string action)
 
 std::string Game::whyCannotPerform(Player* actor, const std::string& action, Player* pendingTarget)
 {
+    if(actor != current_turn)
+        return "Not the current player's turn";
     if(actor->getCoins() >= 10 && action != "Coup")
         return "Above 10 coins you must coup!";
     if(action == "Skip")

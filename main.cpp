@@ -10,74 +10,142 @@
 #include "Roles/headers/Merchant.hpp"
 #include "Logic/Game.hpp"
 
-// Helper to look up a live player by name
-Player* findPlayerByName(Game& game, const std::string& name) {
-    for (Player* p : game.getAlivePlayers()) {
-        if (p->getName() == name) return p;
-    }
-    return nullptr;
-}
-
 int main() {
-    // 1) Create four players with fixed roles & names
     std::vector<Player*> players = {
         new Governor("Alice"),
         new Spy     ("Bob"),
         new Baron   ("Carol"),
-        new Judge   ("Diana")
+        new Judge   ("Diana"),
+        new General ("Mallory"),
+        new Merchant("Trent")
     };
 
-    // 2) Initialize game with our vector of pointers
     Game game(players);
-    // — if you don’t yet have this ctor, add to Game.hpp:
-    //   explicit Game(const std::vector<Player*>& v)
-    //     : players(v), alivePlayers(v),
-    //       current_turn(v.front()), game_winner(nullptr),
-    //       hasPending(false), currentIndex(0), indexBeforeReaction(0)
-    //   {}
 
-    // 3) Define a fixed “script” of turns
-    struct Turn { std::string actor, action, target; };
-    std::vector<Turn> script = {
-        // actor   action      target (empty = no target)
-        {"Alice",  "Gather",    ""       },
-        {"Bob",    "Tax",       ""       },
-        {"Carol",  "Bribe",     "Bob"    },
-        {"Diana",  "Prevent Bribe", "Carol"},
-        {"Alice",  "Skip",      ""       },
-        {"Bob",    "Gather",    ""       },
-        {"Carol",  "Coup",      "Bob"    }
-        // …add as many as you like
-    };
+    vector<string> playerNames = game.getPlayersNames();
 
-    // 4) Play out the script
-    for (auto& t : script)
+    // Expected output:
+    // Alice
+    // Bob
+    // Carol
+    // Diana
+    // Mallory
+    // Trent
+    for(string name : playerNames){
+        cout << name << endl;
+    }
+
+    // Expected output: Alice
+    game.turn();
+
+    for(auto player : game.getAlivePlayers())
     {
-        Player* actor  = findPlayerByName(game, t.actor);
-        Player* target = t.target.empty() ? nullptr : findPlayerByName(game, t.target);
-
-        if (!actor) {
-            std::cerr << "Error: actor '" << t.actor << "' not found\n";
-            continue;
+        if(game.canPerform(player, "Gather", nullptr)) // true
+        {
+            game.perform(player, "Gather", nullptr);
+            cout << *player << endl;
+            game.nextTurn();
         }
-        try {
-            game.perform(actor, t.action, target);
-        }
-        catch (const std::exception& e) {
-            std::cout << "Illegal move: " << e.what() << "\n";
-        }
-        if (game.checkWinner()) break;
     }
 
-    // 5) Announce the winner
-    try {
-        std::cout << "Winner: " << game.winner() << "\n";
-    }
-    catch (...) {
-        std::cout << "No winner at end of script.\n";
+    // Expected exception - Not spy's turn
+    try{
+        game.canPerform(players[1], "Gather", nullptr);
+    } catch (const std::exception &e){
+        std::cerr << e.what() << '\n';
     }
 
-    // 6) Clean up
-    // (Game::~Game will delete the pointers if you wired it that way)
+    game.perform(players[0], "Gather", nullptr);
+    game.nextTurn();
+    game.perform(players[1], "Tax", nullptr);
+    // Expected exception - Judge cannot undo tax
+    try{
+        players[3]->abortTax(*players[0]);
+    } catch (const std::exception &e) {
+        std::cerr << e.what() << '\n';
+    }
+
+    cout << *players[0] << endl; // Expected: 2
+    cout << *players[1] << endl; // Expected: 3
+
+    string action = "Tax";
+    game.setupPendingReverse(game.getCurrentTurn(), action, nullptr);
+    string reverseAction = "Prevent Tax";
+    game.performPendingReverse(reverseAction); // Governor undo tax
+    cout << *players[1] << endl; // Expected: 1
+    game.advancePendingResponder();
+    game.clearPendingReverse();
+
+    game.nextTurn();
+
+    players[2]->tax();
+    game.nextTurn();
+    players[3]->gather();
+    game.nextTurn();
+    players[4]->gather();
+    game.nextTurn();
+    players[5]->gather();
+    game.nextTurn();
+
+    players[0]->tax(); // Governor gains 3 coins on tax
+    game.nextTurn();
+    players[1]->gather();
+    game.nextTurn();
+    players[2]->invest(); // Baron traded its 3 coins and got 6
+    game.nextTurn();
+    players[3]->gather();
+    game.nextTurn();
+    players[4]->gather();
+    game.nextTurn();
+    players[5]->gather();
+    game.nextTurn();
+
+    players[0]->gather();
+    game.nextTurn();
+    players[1]->gather();
+    game.nextTurn();
+    players[2]->investSuccess();
+    cout << *players[2] << endl; // Expected: 6
+    players[2]->gather();
+    game.nextTurn();
+    players[3]->gather();
+    game.nextTurn();
+    players[4]->gather();
+    game.nextTurn();
+    players[5]->gather();
+    game.nextTurn();
+
+    players[0]->gather();
+    game.nextTurn();
+    players[1]->gather();
+    game.nextTurn();
+    cout << *players[2] << endl;
+    if(game.canPerform(players[2], "Coup", players[0]))
+    {
+        game.perform(players[2], "Coup", players[0]);
+        game.nextTurn();
+    }
+    else
+        game.nextTurn();
+
+    players[3]->gather();
+    game.nextTurn();
+    players[4]->gather();
+    game.nextTurn();
+    players[5]->gather();
+    game.nextTurn();
+
+
+    playerNames = game.getPlayersNames();
+    // Since no one blocked the Baron, the expected output is:
+    // Bob
+    // Carol
+    // Diana
+    // Mallory
+    // Trent
+    for (string name : playerNames) {
+        cout << name << endl;
+    }
+
     return 0;
 }

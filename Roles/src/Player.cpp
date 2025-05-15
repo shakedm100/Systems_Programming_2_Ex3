@@ -179,7 +179,7 @@ void Player::clearStatusEffects()
 }
 
 std::ostream& operator<<(std::ostream& os, const Player& player) {
-    os << player.name << "\n";
+    os << player.name << "\n" << player.coins << "\n";
     return os;
 }
 
