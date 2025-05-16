@@ -18,6 +18,9 @@ Systems_Programming_2_Ex3/
 ├── Exceptions/             # Custom exceptions implementaions
 ├── Logic/                  # Core game logic
 │   ├── Game.cpp
+├── Exceptions/             # Custom exceptions implementaions
+├── Logic/                  # Core game logic
+│   ├── Game.cpp
 ├── Roles/                  # Role-specific implementations and headers
 │   ├── src/                # .cpp implementations
 │   └── headers/            # .hpp declarations
