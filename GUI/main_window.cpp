@@ -89,7 +89,7 @@ int main()
 
     // Load font
     sf::Font font;
-    if (!font.loadFromFile("Assets/arial.ttf")) {
+    if (!font.loadFromFile("GUI/Assets/arial.ttf")) {
         std::cerr << "Failed to load font\n";
         return 1;
     }

@@ -2,6 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include "../Logic/Game.hpp"
 #include <string>
+#include "game_window.hpp"
 #include "TurnController.hpp"
 
 
@@ -11,7 +12,7 @@ std::string promptPlayerName(int playerIndex) {
     win.setFramerateLimit(30);
 
     sf::Font font;
-    font.loadFromFile("Assets/arial.ttf");
+    font.loadFromFile("GUI/Assets/arial.ttf");
 
     // Instruction text
     sf::Text prompt("Enter name for Player " + std::to_string(playerIndex) + ":", font, 20);
@@ -69,7 +70,7 @@ int gameWindow(int players) {
     sf::RenderWindow window(sf::VideoMode(1200,900), "Coup Game");
     window.setFramerateLimit(60);
     sf::Font font;
-    font.loadFromFile("assets/arial.ttf");
+    font.loadFromFile("GUI/Assets/arial.ttf");
     Game game = Game(players);
 
     TurnController controller(game, font, window);

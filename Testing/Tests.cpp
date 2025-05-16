@@ -108,67 +108,71 @@ TEST_CASE("Game illegal-move exception coverage for whyCannotPerform") {
     Spy* spy = new Spy("Spy");
     Merchant* merch = new Merchant("Mer");
     std::vector<Player*> plist = { gov, baron, spy, merch };
-    Game g(plist);
+    Game game(plist);
 
     // 1) Must coup when coins >=10 and action != "Coup"
     gov->setCoins() = 10;
-    CHECK_THROWS_AS(g.canPerform(gov, "Gather", nullptr), IllegalMoveException);
+    CHECK_THROWS_AS(game.canPerform(gov, "Gather", nullptr), IllegalMoveException);
 
     // 2) Skip is always allowed
     gov->setCoins() = 0;
-    CHECK_NOTHROW(g.canPerform(gov, "Skip", nullptr));
+    CHECK_NOTHROW(game.canPerform(gov, "Skip", nullptr));
 
     // 3) Sanction prevents Gather and Tax
     gov->getStatus().isSanctioned = true;
-    CHECK_THROWS_AS(g.canPerform(gov, "Gather", nullptr), IllegalMoveException);
-    CHECK_THROWS_AS(g.canPerform(gov, "Tax", nullptr), IllegalMoveException);
+    CHECK_THROWS_AS(game.canPerform(gov, "Gather", nullptr), IllegalMoveException);
+    CHECK_THROWS_AS(game.canPerform(gov, "Tax", nullptr), IllegalMoveException);
     gov->getStatus().isSanctioned = false;
 
     // 4) Bribe failures and success
     gov->setCoins() = 3;
-    CHECK_THROWS_AS(g.canPerform(gov, "Bribe", nullptr), IllegalMoveException);
+    CHECK_THROWS_AS(game.canPerform(gov, "Bribe", nullptr), IllegalMoveException);
     gov->setCoins() = 4;
-    CHECK_NOTHROW(g.canPerform(gov, "Bribe", nullptr));
+    CHECK_NOTHROW(game.canPerform(gov, "Bribe", nullptr));
 
     // 5) Invest by non-Baron and Baron
     gov->setCoins() = 5;
-    CHECK_THROWS_AS(g.canPerform(gov, "Invest", nullptr), IllegalMoveException);
+    CHECK_THROWS_AS(game.canPerform(gov, "Invest", nullptr), IllegalMoveException);
     baron->setCoins() = 2;
-    CHECK_THROWS_AS(g.canPerform(baron, "Invest", nullptr), IllegalMoveException);
+    game.nextTurn();
+    CHECK_THROWS_AS(game.canPerform(baron, "Invest", nullptr), IllegalMoveException);
     baron->setCoins() = 3;
-    CHECK_NOTHROW(g.canPerform(baron, "Invest", nullptr));
+    CHECK_NOTHROW(game.canPerform(baron, "Invest", nullptr));
 
     // 6) Peek by non-Spy and Spy
     gov->setCoins() = 0;
-    CHECK_THROWS_AS(g.canPerform(gov, "Peek", nullptr), IllegalMoveException);
-    CHECK_NOTHROW(g.canPerform(spy, "Peek", nullptr));
+    CHECK_THROWS_AS(game.canPerform(gov, "Peek", nullptr), IllegalMoveException);
+    game.nextTurn();
+    CHECK_NOTHROW(game.canPerform(spy, "Peek", nullptr));
 
     // 7) Arrest on target with no coins and Merchant-specific
     gov->setCoins() = 5;
     Governor victim1("V1"); victim1.setCoins() = 0;
-    CHECK_THROWS_AS(g.canPerform(gov, "Arrest", &victim1), IllegalMoveException);
+    game.nextTurn();
+    game.nextTurn();
+    CHECK_THROWS_AS(game.canPerform(gov, "Arrest", &victim1), IllegalMoveException);
     merch->setCoins() = 1;
-    CHECK_THROWS_AS(g.canPerform(gov, "Arrest", merch), IllegalMoveException);
+    CHECK_THROWS_AS(game.canPerform(gov, "Arrest", merch), IllegalMoveException);
 
     // 8) Sanction target-specific failures
     gov->setCoins() = 2;
-    CHECK_THROWS_AS(g.canPerform(gov, "Sanction", &victim1), IllegalMoveException);
+    CHECK_THROWS_AS(game.canPerform(gov, "Sanction", &victim1), IllegalMoveException);
     gov->setCoins() = 5;
     merch->getStatus().isSanctioned = true;
-    CHECK_THROWS_AS(g.canPerform(gov, "Sanction", merch), IllegalMoveException);
+    CHECK_THROWS_AS(game.canPerform(gov, "Sanction", merch), IllegalMoveException);
     merch->getStatus().isSanctioned = false;
 
     // 9) Coup-specific failures
     gov->setCoins() = 6;
-    CHECK_THROWS_AS(g.canPerform(gov, "Coup", &victim1), IllegalMoveException);
+    CHECK_THROWS_AS(game.canPerform(gov, "Coup", &victim1), IllegalMoveException);
     gov->setCoins() = 7;
     victim1.getStatus().isAlive = false;
-    CHECK_THROWS_AS(g.canPerform(gov, "Coup", &victim1), IllegalMoveException);
+    CHECK_THROWS_AS(game.canPerform(gov, "Coup", &victim1), IllegalMoveException);
 
     // 10) Peek with target by non-Spy
-    CHECK_THROWS_AS(g.canPerform(gov, "Peek", &victim1), IllegalMoveException);
+    CHECK_THROWS_AS(game.canPerform(gov, "Peek", &victim1), IllegalMoveException);
 
     // 11) Unknown action
     gov->setCoins() = 0;
-    CHECK_THROWS_AS(g.canPerform(gov, "Fly", nullptr), IllegalMoveException);
+    CHECK_THROWS_AS(game.canPerform(gov, "Fly", nullptr), IllegalMoveException);
 }

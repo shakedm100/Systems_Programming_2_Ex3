@@ -62,7 +62,7 @@ int main() {
     try{
         players[3]->abortTax(*players[0]);
     } catch (const std::exception &e) {
-        std::cerr << e.what() << '\n';
+        std::cerr << e.what() << '\n'; // For some reason it prints the error in the console in a weird way
     }
 
     cout << *players[0] << endl; // Expected: 2
@@ -89,7 +89,7 @@ int main() {
 
     players[0]->tax(); // Governor gains 3 coins on tax
     game.nextTurn();
-    players[1]->gather();
+    players[1]->arrest(*players[0]);
     game.nextTurn();
     players[2]->invest(); // Baron traded its 3 coins and got 6
     game.nextTurn();
@@ -112,7 +112,7 @@ int main() {
     game.nextTurn();
     players[4]->gather();
     game.nextTurn();
-    players[5]->gather();
+    players[5]->tax();
     game.nextTurn();
 
     players[0]->gather();
@@ -123,7 +123,7 @@ int main() {
     if(game.canPerform(players[2], "Coup", players[0]))
     {
         game.perform(players[2], "Coup", players[0]);
-        game.nextTurn();
+        game.updateCurrentTurn();
     }
     else
         game.nextTurn();
@@ -131,8 +131,6 @@ int main() {
     players[3]->gather();
     game.nextTurn();
     players[4]->gather();
-    game.nextTurn();
-    players[5]->gather();
     game.nextTurn();
 
 
@@ -147,5 +145,33 @@ int main() {
         cout << name << endl;
     }
 
+    if(game.canPerform(players[5], "Coup", players[1]))
+    {
+        game.perform(players[2], "Coup", players[1]);
+        game.setupPendingReverse(players[2], "Coup", players[1]);
+        game.updateCurrentTurn();
+    }
+    else
+        game.nextTurn();
+
+    reverseAction = "Reverse Coup";
+    cout << "Reversing Coup";
+    game.performPendingReverse(reverseAction); // Governor undo tax
+    cout << "Post Reverse Coup Mechant:" << *players[5] << endl;
+    cout << "Post Reverse Coup General:" << *players[4] << endl;
+    cout << "Post Reverse Coup Spy:" << *players[2] << endl;
+    game.advancePendingResponder();
+    game.clearPendingReverse();
+
+    playerNames = game.getPlayersNames();
+    // Since General blocked the Merchant, the expected output is:
+    // Bob
+    // Carol
+    // Diana
+    // Mallory
+    // Trent
+    for (string name : playerNames) {
+        cout << name << endl;
+    }
     return 0;
 }

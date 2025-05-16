@@ -8,7 +8,7 @@
  * the connection between the logic and the UI
  * @param players how many players there are in the current game
  */
-void gameWindow(int players);
+int gameWindow(int players);
 
 /**
  * This method shows a prompt window that asks for the player's name

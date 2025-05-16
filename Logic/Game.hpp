@@ -20,10 +20,10 @@ struct PendingReverse
 class Game
 {
 private:
-    Player* current_turn;
+    Player* currentTurn;
     std::vector<Player*> players;
     std::vector<Player*> alivePlayers;
-    Player* game_winner;
+    Player* gameWinner;
     PendingReverse pending;
     bool hasPending;
     size_t currentIndex;
@@ -32,8 +32,8 @@ private:
 
 public:
     explicit Game(int playersCount);
-    Game(std::vector<Player *> players) : current_turn(players.at(0)), players(players),
-    alivePlayers(players), game_winner(nullptr), hasPending(false), currentIndex(0), indexBeforeReaction(0) {}
+    Game(std::vector<Player *> players) : currentTurn(players.at(0)), players(players),
+    alivePlayers(players), gameWinner(nullptr), hasPending(false), currentIndex(0), indexBeforeReaction(0) {}
     ~Game();
 
      /**
@@ -163,6 +163,12 @@ public:
     */
     std::vector<std::string> getPlayersNames() const;
 
+    /**
+    * This method is just for main.cpp because normally
+    * TurnController handles it with turn phases
+    */
+    void updateCurrentTurn();
+
 private:
     /**
      * This helper method determines if an action can be executed and
@@ -191,6 +197,6 @@ private:
     * This helper function is given how many players
     * and assigns each player a random role
     */
-    void createGame(int countPlayers);
+    void createGame(const int countPlayers);
 
 };

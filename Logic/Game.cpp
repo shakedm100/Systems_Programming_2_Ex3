@@ -15,13 +15,13 @@
 #include <stdexcept>
 #include "../GUI/game_window.hpp"
 
-void Game::createGame(const int playersCount)
+void Game::createGame(const int countPlayers)
 {
     std::random_device rd;
     std::mt19937 mt(rd());
     std::uniform_int_distribution<int> dice(1,6);
 
-    for(int i = 0; i < playersCount; i++)
+    for(int i = 0; i < countPlayers; i++)
     {
         std::string name = promptPlayerName(i+1);
         if (name.empty())
@@ -89,11 +89,16 @@ std::vector<std::string> Game::getPlayersNames() const
     return names;
 }
 
-Game::Game(int playersCount) : game_winner(nullptr), hasPending(false),
+void Game::updateCurrentTurn()
+{
+    currentTurn = alivePlayers[currentIndex];
+}
+
+Game::Game(int playersCount) : gameWinner(nullptr), hasPending(false),
                                currentIndex(0), indexBeforeReaction(0)
 {
     createGame(playersCount);
-    current_turn = players.at(0);
+    currentTurn = players.at(0);
 }
 
 Game::~Game()
@@ -104,13 +109,13 @@ Game::~Game()
 
 void Game::turn() const
 {
-    cout << *current_turn << endl;
+    cout << *currentTurn << endl;
 }
 
 string Game::winner() const
 {
-    if(game_winner != nullptr)
-        return game_winner->getName();
+    if(gameWinner != nullptr)
+        return gameWinner->getName();
 
     throw NoWinnerException("No winner yet in this game");
 }
@@ -119,7 +124,7 @@ bool Game::checkWinner()
 {
     if(alivePlayers.size() == 1)
     {
-        game_winner = current_turn;
+        gameWinner = currentTurn;
         return true;
     }
 
@@ -128,22 +133,22 @@ bool Game::checkWinner()
 
 Player * Game::getWinner() const
 {
-    return game_winner;
+    return gameWinner;
 }
 
 Player* Game::getCurrentTurn() const
 {
-    return current_turn;
+    return currentTurn;
 }
 
 void Game::nextTurn()
 {
     currentIndex = (currentIndex + 1) % alivePlayers.size();
     // pick the player directly
-    current_turn = alivePlayers[currentIndex];
+    currentTurn = alivePlayers[currentIndex];
 
-    if(current_turn->getClassName() == "Merchant" && current_turn->getCoins() >= 3)
-        current_turn->aboveThreeCoins();
+    if(currentTurn->getClassName() == "Merchant" && currentTurn->getCoins() >= 3)
+        currentTurn->aboveThreeCoins();
 }
 
 std::vector<Player*> Game::getPlayers()
@@ -186,7 +191,7 @@ bool Game::actionNeedsTarget(string action)
 
 std::string Game::whyCannotPerform(Player* actor, const std::string& action, Player* pendingTarget)
 {
-    if(actor != current_turn)
+    if(actor != currentTurn)
         return "Not the current player's turn";
     if(actor->getCoins() >= 10 && action != "Coup")
         return "Above 10 coins you must coup!";
@@ -361,7 +366,7 @@ void Game::setupPendingReverse(Player* actor, const std::string& action, Player*
     pending = reverse;
     hasPending = true;
     currentIndex = indexOf(pending.responders[0]);
-    current_turn = alivePlayers[currentIndex];
+    currentTurn = alivePlayers[currentIndex];
 }
 
 bool Game::hasPendingReverse() const { return hasPending; }
@@ -373,7 +378,7 @@ bool Game::advancePendingResponder()
     ++pending.nextResponder;
     if (pending.nextResponder < pending.responders.size()) {
         currentIndex = indexOf(pending.responders[pending.nextResponder]);
-        current_turn = alivePlayers[currentIndex];
+        currentTurn = alivePlayers[currentIndex];
         return true;
     }
     return false;
@@ -387,25 +392,25 @@ void Game::clearPendingReverse()
     hasPending = false;
     // restore to exactly the actor’s index before reaction
     currentIndex = indexBeforeReaction;
-    current_turn = alivePlayers[currentIndex];
+    currentTurn = alivePlayers[currentIndex];
 }
 
 void Game::performPendingReverse(std::string &reverseAction)
 {
     if(reverseAction == "Prevent Tax")
-        current_turn->abortTax(*pending.actor);
+        currentTurn->abortTax(*pending.actor);
     if(reverseAction == "Prevent Arrest")
     {
-        current_turn->blockArrest(*pending.actor);
+        currentTurn->blockArrest(*pending.actor);
         pending.target->setCoins()++;
     }
     if(reverseAction == "Reverse Coup")
     {
-        current_turn->reverseCoup(*pending.target);
+        currentTurn->reverseCoup(*pending.target);
         alivePlayers.push_back(pending.target);
     }
     if(reverseAction == "Reverse Bribe")
-        current_turn->preventBribe(*pending.actor);
+        currentTurn->preventBribe(*pending.actor);
 }
 
 bool Game::isPendingActionBribe() const
