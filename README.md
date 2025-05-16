@@ -108,5 +108,3 @@ make all
 ## Notes
 
 * **Font path:** The GUI looks for `GUI/Assets/arial.ttf` relative to the executable. Keep `Assets/arial.ttf` in `GUI/Assets/`.
-
-Enjoy playing and testing your Coup implementation!
