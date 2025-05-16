@@ -1,3 +1,4 @@
+//shaked1mi@gmail.com
 #include "NoWinnerException.hpp"
 #include <stdexcept>
 
