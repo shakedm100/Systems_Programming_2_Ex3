@@ -2,7 +2,7 @@
 
 **Author:** Shaked Michael
 
-A C++ implementation of the Coup card game, featuring:
+A C++ implementation of a variant of the Coup card game, featuring:
 
 * Core game logic (roles, actions, turn flow)
 * Graphical user interface using SFML
