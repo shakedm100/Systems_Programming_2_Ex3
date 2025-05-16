@@ -15,8 +15,9 @@ A C++ implementation of the Coup card game, featuring:
 Systems_Programming_2_Ex3/
 ├── makefile                # Build configuration
 ├── main.cpp                # Console entry point
-├── Exceptions/             # Custom exception headers (header-only)
-├── Logic/                  # Core game logic (Game.cpp, Game.hpp)
+├── Exceptions/             # Custom exceptions implementaions
+├── Logic/                  # Core game logic
+│   ├── Game.cpp
 ├── Roles/                  # Role-specific implementations and headers
 │   ├── src/                # .cpp implementations
 │   └── headers/            # .hpp declarations
@@ -25,7 +26,8 @@ Systems_Programming_2_Ex3/
 │   ├── TurnController.cpp
 │   ├── main_window.cpp
 │   └── Assets/             # Fonts and other assets (arial.ttf)
-└── Testing/                # Doctest unit tests (Tests.cpp)
+├── Testing/                # Doctest unit tests (Tests.cpp)
+│   ├── Tests.cpp
 ```
 
 ## Dependencies
