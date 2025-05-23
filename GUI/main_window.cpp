@@ -81,6 +81,11 @@ int promptPlayerCount(sf::Font& font) {
     return 0;
 }
 
+/**
+ * This is the main function the UI game runs through
+ * it creates the home window for the game where you can choose
+ * either to start a game or exit
+ */
 int main()
 {
     // Main window

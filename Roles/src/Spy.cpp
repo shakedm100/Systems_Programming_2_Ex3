@@ -8,7 +8,7 @@ int Spy::peek(Player& role)
 
 void Spy::blockArrest(Player& role)
 {
-    role.setCoins() -= 1;
+    role.setCoins() -= 1; // Reverse the arrest action and take the coin from the player who tried to arrest
 }
 
 string Spy::getClassName()

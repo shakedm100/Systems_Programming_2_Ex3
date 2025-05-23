@@ -5,15 +5,15 @@
 
 void Player::gather()
 {
-    if(!status.isSanctioned)
-        coins++;
+    if(!status.isSanctioned) // If the player is not sanctioned
+        coins++; // Give one coin to the current player
 }
 
 bool Player::tax()
 {
-    if(!status.isSanctioned)
+    if(!status.isSanctioned) // If the player is not sanctioned
     {
-        coins+=2;
+        coins+=2; // Give two coins to the current player
         return true;
     }
 
@@ -22,10 +22,10 @@ bool Player::tax()
 
 bool Player::bribe()
 {
-    if(coins >= 4)
+    if(coins >= 4) // Check if the current player can bribe
     {
-        coins-=4;
-        extraTurns = 2;
+        coins-=4; // Take 4 coins for the player
+        extraTurns = 2; // Activate bribe
         return true;
     }
 
@@ -34,19 +34,19 @@ bool Player::bribe()
 
 bool Player::arrest(Player& player)
 {
-    if(player.getClassName() == "General")
+    if(player.getClassName() == "General") // Generals can't be arrested
         return true; //Do nothing but waste turn
 
-    if(player.getClassName() == "Merchant")
+    if(player.getClassName() == "Merchant") // if the arrested player is a Merchant
     {
-        player.coins -= 2;
+        player.coins -= 2; // Take two coins from the player (not to yourself)
         return true;
     }
 
-    if(player.coins > 0)
+    if(player.coins > 0) // If not a General or a Merchant, check if the player has coins to take
     {
-        player.coins--;
-        this->coins++;
+        player.coins--; // Take one coin
+        this->coins++; // Give yourself
         return true;
     }
 
@@ -57,20 +57,20 @@ bool Player::sanction(Player& player)
 {
     if(player.getClassName() == "Judge")
     {
-        if(this->coins >= 4)
+        if(this->coins >= 4) // If the sanctioned player is a judge check if the current player can sanction him
         {
-            player.status.isSanctioned = true;
-            this->coins -= 4;
+            player.status.isSanctioned = true; // Change sanction status
+            this->coins -= 4; // Remove coins from the current player
             return true;
         }
         else
             return false;
     }
 
-    if(this->coins >= 3)
+    if(this->coins >= 3) // Check if the current player can sanction
     {
-        player.status.isSanctioned = true;
-        this->coins -= 3;
+        player.status.isSanctioned = true; // Change sanction status
+        this->coins -= 3; // Remove coins from the current player
         return true;
     }
 
@@ -79,9 +79,9 @@ bool Player::sanction(Player& player)
 
 bool Player::coup(Player& player) const
 {
-    if(this->coins >= 7)
+    if(this->coins >= 7) // Check if the current player can coup
     {
-        player.status.isAlive = false;
+        player.status.isAlive = false; // Remove the player from the game
         return true;
     }
     return false;
@@ -174,12 +174,12 @@ void Player::increaseExtraTurns()
 
 void Player::clearStatusEffects()
 {
-    status.isSanctioned = false;
-    status.holdTurn = false;
+    status.isSanctioned = false; // Remove sanction effect
+    status.holdTurn = false; // Remove holdTurn effect
 }
 
 std::ostream& operator<<(std::ostream& os, const Player& player) {
-    os << player.name << "\n" << player.coins << "\n";
+    os << player.name << "\n" << player.coins << "\n"; // Print the player's name and his current coins amount
     return os;
 }
 

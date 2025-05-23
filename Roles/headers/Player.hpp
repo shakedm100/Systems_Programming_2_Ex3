@@ -4,6 +4,10 @@
 
 using namespace std;
 
+/**
+ * This struct is reponsible for holding all the player's effects that occure on him.
+ * Used for checks, for example if some actions can effect this player.
+ */
 struct Status
 {
     bool isSanctioned;
@@ -15,6 +19,12 @@ struct Status
     isInvested(false), holdTurn(false){};
 };
 
+/**
+ * This class is reponsible for representing a player in the game.
+ * It's an abstraction of each of the possible roles that inherit from him
+ * and declares all possible functions for it's inheriting classes to implement.
+ * This is an abstract class.
+ */
 class Player
 {
 protected:
@@ -158,7 +168,8 @@ public:
 
     /**
     * Pure virtual function in Player, implemented by it's
-    * inheriting classes
+    * inheriting classes.
+    * Makes this class abstract.
     * @return Returns the name of the class
     */
     virtual std::string getClassName() = 0;

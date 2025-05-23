@@ -12,6 +12,10 @@
 #include "Roles/headers/Merchant.hpp"
 #include "Logic/Game.hpp"
 
+/**
+ * This is the main function for demo purposes, shows the main features of
+ * the game implementation
+ */
 int main() {
     using namespace std;
 

@@ -7,6 +7,6 @@ string Merchant::getClassName() {
 
 void Merchant::aboveThreeCoins()
 {
-    if(coins >= 3)
-        coins++;
+    if(coins >= 3) // Check if the Merchants bonus can be activated
+        coins++; // Give one extra coin
 }
