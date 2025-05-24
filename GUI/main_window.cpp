@@ -13,25 +13,30 @@ int promptPlayerCount(sf::Font& font) {
     const int minPlayers = 2, maxPlayers = 6;
     int count = minPlayers;
 
+    // Show a small sized window
     sf::RenderWindow prompt({400, 200}, "How many players?", sf::Style::Titlebar | sf::Style::Close);
     prompt.setFramerateLimit(30);
 
+    // Least players are 2, so set the label to this amount
     sf::Text txtCount("Players: 2", font, 30);
     txtCount.setFillColor(sf::Color::White);
     txtCount.setPosition(120, 30);
 
+    // Buttons to decrease and increase the players
     sf::RectangleShape btnMinus({40, 40}), btnPlus({40, 40});
     btnMinus.setFillColor(sf::Color(200,0,0));
     btnPlus .setFillColor(sf::Color(0,200,0));
     btnMinus.setPosition( 60,  80);
     btnPlus .setPosition(300,  80);
 
+    // Set the minus and plus texts
     sf::Text txtMinus("-", font, 24), txtPlus("+", font, 24);
     txtMinus.setFillColor(sf::Color::White);
     txtPlus .setFillColor(sf::Color::White);
     txtMinus.setPosition(btnMinus.getPosition() + sf::Vector2f(12,6));
     txtPlus .setPosition(btnPlus .getPosition() + sf::Vector2f(12,6));
 
+    // Set the start button to initiate name asking prompt
     sf::RectangleShape btnStart({100, 40});
     btnStart.setFillColor(sf::Color(100,149,237));
     btnStart.setPosition(150, 140);
@@ -48,34 +53,38 @@ int promptPlayerCount(sf::Font& font) {
 
     while (prompt.isOpen()) {
         sf::Event e;
-        while (prompt.pollEvent(e)) {
-            if (e.type == sf::Event::Closed) {
-                prompt.close();
+        while (prompt.pollEvent(e)) { // Check the current event in the window
+            if (e.type == sf::Event::Closed) { // If the x button was pressed
+                prompt.close(); // Close the window
                 return 0;
             }
             if (e.type == sf::Event::MouseButtonPressed &&
-                e.mouseButton.button == sf::Mouse::Left)
+                e.mouseButton.button == sf::Mouse::Left) // If a mouse button was pressed
             {
-                sf::Vector2f m(e.mouseButton.x, e.mouseButton.y);
-                if (btnMinus.getGlobalBounds().contains(m) && count > minPlayers) {
-                    --count;
+                sf::Vector2f m(e.mouseButton.x, e.mouseButton.y); // Get the mouse's position
+                if (btnMinus.getGlobalBounds().contains(m) && count > minPlayers) { // If minus button pressed and count > 2
+                    --count; // Decrease players
                 }
-                if (btnPlus.getGlobalBounds().contains(m) && count < maxPlayers) {
-                    ++count;
+                if (btnPlus.getGlobalBounds().contains(m) && count < maxPlayers) { // If plus button pressed and count < 6
+                    ++count; // Increase players
                 }
-                if (btnStart.getGlobalBounds().contains(m)) {
-                    prompt.close();
-                    return count;
+                if (btnStart.getGlobalBounds().contains(m)) { // If start button pressed
+                    prompt.close(); // Close the window
+                    return count; // Return how many players will play
                 }
                 txtCount.setString("Players: " + std::to_string(count));
             }
         }
-
+        
+        // Draw the buttons
         prompt.clear(sf::Color(50,50,50));
         prompt.draw(txtCount);
-        prompt.draw(btnMinus);  prompt.draw(txtMinus);
-        prompt.draw(btnPlus);   prompt.draw(txtPlus);
-        prompt.draw(btnStart);  prompt.draw(txtStart);
+        prompt.draw(btnMinus);  
+        prompt.draw(txtMinus);
+        prompt.draw(btnPlus);   
+        prompt.draw(txtPlus);
+        prompt.draw(btnStart);  
+        prompt.draw(txtStart);
         prompt.display();
     }
     return 0;
@@ -103,9 +112,7 @@ int main()
     sf::Text title("COUP", font, 72);
     title.setFillColor(sf::Color::White);
     title.setPosition(
-        (window.getSize().x - title.getLocalBounds().width)/2,
-        50
-    );
+        (window.getSize().x - title.getLocalBounds().width)/2,50);
 
     // Buttons
     sf::Vector2f btnSize(200, 60);
@@ -136,28 +143,29 @@ int main()
     while (window.isOpen())
     {
         sf::Event evt;
-        while (window.pollEvent(evt))
+        while (window.pollEvent(evt)) // Check the events in the window
         {
-            if (evt.type == sf::Event::Closed)
-                window.close();
+            if (evt.type == sf::Event::Closed) // If x button was pressed
+                window.close(); // Close window
 
             if (evt.type == sf::Event::MouseButtonPressed &&
-                evt.mouseButton.button == sf::Mouse::Left)
+                evt.mouseButton.button == sf::Mouse::Left) // If mouse clicked
             {
-                sf::Vector2f m(evt.mouseButton.x, evt.mouseButton.y);
-                if (btnStart.getGlobalBounds().contains(m)) {
-                    int n = promptPlayerCount(font);
+                sf::Vector2f m(evt.mouseButton.x, evt.mouseButton.y); // Get mouse position
+                if (btnStart.getGlobalBounds().contains(m)) { // If it clicked inside start button
+                    int n = promptPlayerCount(font); // Get how many players will play
                     if (n > 0) {
                         window.close();
-                        gameWindow(n);      // <-- calls into game_window.cpp
+                        gameWindow(n); // Move to gameWindow
                     }
                 }
-                if (btnExit.getGlobalBounds().contains(m)) {
+                if (btnExit.getGlobalBounds().contains(m)) { // If the exit button was clicked
                     window.close();
                 }
             }
         }
 
+        // Draw all the elements
         window.clear(sf::Color(30,30,30));
         window.draw(title);
         window.draw(btnStart); window.draw(txtStart);
